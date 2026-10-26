@@ -1,0 +1,50 @@
+category,item,part_number,manufacturer,qty,unit_price_gbp,source_url,supplier,price_date,price_type,mass_g,notes,alternative
+actuator,leg bus servo 20-25kg TTL 6-14V,ST3020,Waveshare,10,19.40,https://thepihut.com/products/st3020-servo,The Pi Hut,2026-10-26,verified,58,"PRIMARY — 25kgcm stall@12V, ~2.0-2.2@8.4V est; wide 6-14V input = safe on raw 2S; Feetech-protocol TTL bus; UK stock",Feetech STS3215-C001 (needs LiFePO4/buck rail) £26.30 RobotShop / ~£10-13 import
+actuator,leg bus servo alt 19.5kg TTL 7.4V,STS3215-C001,Feetech,10,26.30,https://uk.robotshop.com/products/magnetic-encoding-servo-sts3215-74v-19kgcm,RobotShop UK,2026-10-26,verified,55,"FALLBACK — published rated 5kgcm; max input 7.4V (needs LiFePO4 or buck); ecosystem standard SO-ARM101; ~£7-14 in CN 6-packs",Waveshare ST3215-7.4V £22.99 Amazon
+actuator,leg servo perf upgrade 30kg 12V,STS3215-C018,Feetech,0-10,24.32,https://uk.robotshop.com/products/feetech-12v-30kgcm-magnetic-encoding-servo-sts3215,RobotShop UK,2026-10-26,verified,60,"PERF — rated 10kgcm published @12V; doubles knee margin on 3S bus",ST3020
+actuator,head/aux small servo (OPTION v2),STS3032-C001,Feetech,0-2,24.30,https://rchobby-models.co.uk/feetech-sts3032-st-3032-c001-6v-ttl-servo,RC Hobby-Models,2026-10-26,verified,20,"4.5kgcm@6V — NOTE 7.4V max, would need regulated tap on our 8.4V rail or a wide-input alternative",wide-input class servo TBD
+actuator,bus servo debug/programmer,Bus Servo Adapter A,Waveshare,1,10.90,https://www.amazon.co.uk/Waveshare-Serial-Servo-Driver-Board/dp/B0CJBKQ8LJ,Amazon UK,2026-10-26,verified,25,"bench tool: set IDs/baud before assembly (build step 0)",Feetech FE-URT-2 £13.14
+actuator,spare servo (spares kit),ST3020,Waveshare,2,19.40,https://thepihut.com/products/st3020-servo,The Pi Hut,2026-10-26,verified,58,"spares: 1-2 recommended — gearbox strip is top-3 failure",STS3215
+mcu,Pico 2 W (RP2350+WiFi) real-time node,SC1633,Raspberry Pi,1,6.24,https://www.rapidonline.com/raspberry-pi-pico-2-and-pico-2w-microcontroller-boards-595979,Rapid Electronics,2026-10-26,verified,4,"£5.20 ex VAT; owns servo bus+safety; WiFi enables MCU-only demo mode",Pico 2 non-W £5.39; ESP32-S3 £9.60
+sbc,Pi Zero 2 W high-level/policy node,SC1176,Raspberry Pi,1,14.40,https://thepihut.com/products/raspberry-pi-zero-2,The Pi Hut,2026-10-26,verified,12,"quad A53 1GHz 512MB runs 50Hz ONNX (Open Duck Mini proven); STOCK INTERMITTENT — buy early",CM4 Lite £24+carrier; none (MCU-only mode)
+imu,BNO085 9DoF fusion breakout STEMMA-QT,Adafruit 4754,Adafruit,1,28.40,https://thepihut.com/collections/imu-gyro-sensors,The Pi Hut,2026-10-26,verified,2.5,"on-chip SH-2 quaternion — same fusion class as reference's custom IMU board",BMI270 £17.80 raw+on-MCU fusion
+servo_if,Tri-state buffer TX>DATA,SN74LVC1G126DBVR,TI,2,0.30,https://uk.rs-online.com/,RS,2026-10-26,estimate,0.01,"per Waveshare open reference design; 3.3V VCC w/ 5V populate option",74HC126 quad
+servo_if,Tri-state buffer DATA>RX,SN74LVC1G125DBVR,TI,2,0.30,https://uk.rs-online.com/,RS,2026-10-26,estimate,0.01,"GPIO direction control",-
+servo_if,TVS diode DATA lines,SMAJ5.0A,generic,2,0.15,,RS/Farnell,2026-10-26,estimate,0.05,ESD protection at servo connector,-
+servo_if,Servo connector 3-pin 2.54mm,5264-3A / KK254,Molex-compatible,12,0.40,,CPC/AliExpress,2026-10-26,estimate,1,"matches stock servo pigtails — NOT JST-XH (lookalike trap)",-
+display,8x8 LED matrix eyes x2,MAX7219 module or WS2812 matrix,generic,2,2.00,,Amazon UK,2026-10-26,estimate,5,"face/status display behind face plate",custom mini-PCB v2
+pwr,Battery 2S LiPo 2200mAh 30C+,MX2200-2S or generic,ManiaX/Howes,1,16.00,https://modelhelicopters.co.uk/products/maniax-7-4v-2200mah-30c-lipo-rx-battery-pack-mx2200-2s-30-rx-mx2200-2s-30-rx,UK hobby suppliers,2026-10-26,verified,112,"reterminate to XT30; 16.3Wh ~55-65min est runtime",2S1P 18650 pack £17.99 ampsplus (safer, -capacity)
+pwr,Balance charger B3-class 2-3S,B3,generic,1,10.00,https://www.ebay.co.uk/,eBay/seriousrc,2026-10-26,verified,150,"skip if builder owns one",iMAX B6 clone £26
+pwr,Buck 5V/3A fixed output,MP1584-fixed-5V module,generic,1,3.64,https://247geek.co.uk/mp1584fixed5v,247geek,2026-10-26,verified,4,"fixed output only — pots drift under vibration",MP4462 £3.58
+pwr,P-MOSFET reverse polarity,AO4407A,Alpha&Omega,1,0.40,,Farnell,2026-10-26,estimate,0.05,"~0V drop; per Waveshare reference",SS34 Schottky
+pwr,Fuse 10A + holder,mini blade,generic,1,1.50,,CPC,2026-10-26,estimate,2,"servo rail; final value set by E4 peak test",PTC 7-10A
+pwr,E-stop switch 15A latching,toggle/slide,generic,1,3.00,,CPC/RS,2026-10-26,estimate,8,"hard cut in battery lead; torso-accessible",-
+pwr,XT30 connector pair,XT30U-M/F,Amass,1,2.00,,CPC/hobby,2026-10-26,estimate,3,"60A peak rated",-
+pwr,Bulk caps 470uF 16V low-ESR,generic,Panasonic/Rubycon,4,0.50,,Farnell,2026-10-26,estimate,2,"buck in/out + bus branches",-
+pwr,LiPo charging bag (safety),generic,generic,1,8.00,,Amazon UK,2026-10-26,estimate,80,"recommended for hobby LiPo charging",-
+pcb,KCB-1 control board 2-layer qty5,JLCPCB fab,JLCPCB,1,8.00,https://jlcpcb.com,JLCPCB,2026-10-26,estimate,15,"~$2 boards + economy ship; one design per order",PCBWay similar
+misc,microSD 32GB A2,generic,Samsung/Kingston,1,8.00,,Amazon UK,2026-10-26,estimate,0.5,"Pi image",-
+misc,Wire kit 20AWG silicone + heat shrink,20AWG-KIT,Plusivo,1,17.49,https://uk.robotshop.com/products/plusivo-20awg-hook-up-wire-kit-6-colors-7m-each,RobotShop UK,2026-10-26,verified,400,"servo trunk + includes shrink/ties",Fermerry £11.19
+misc,Wire 24-26AWG signal,generic,generic,1,12.00,,Amazon UK,2026-10-26,estimate,200,"logic/servo signal",from kit
+misc,5264/JST-XH pre-crimped lead kits,assorted,Keszoox,1,22.73,https://www.amazon.co.uk/Keszoox-Connector-Pre-Crimped-Housing-Adapter/dp/B0BWVP8BDD,Amazon UK,2026-10-26,verified,190,"pigtails+crimps — no crimper needed",JST-PH leads £8.40
+misc,Cable ties + spiral wrap + sleeving,generic,generic,1,6.00,,Amazon UK,2026-10-26,estimate,50,"harness",printed clips
+filament,PETG-CF structural 1kg,PETG-CF,eSUN,1,20.99,https://esun3dstore.uk/collections/engineering-filament,eSUN UK,2026-10-26,verified,1000,"~400g used; needs hardened nozzle",eSUN PETG-Basic £10.99
+filament,PLA cosmetic 1kg,PLA-B,eSUN,1,10.99,https://esun3dstore.uk/,eSUN UK,2026-10-26,indicative,1000,"~200g used; dome/face/topper",Bambu PLA refill £13.99
+filament,TPU 95A feet/bumpers 1kg,TPU-95A,eSUN,1,14.99,https://esun3dstore.uk/,eSUN UK,2026-10-26,indicative,1000,"~40g used",any 95A TPU
+fasteners,M3 screw+nut+washer kit 300pc,A2 stainless kit,Monkeyjams,1,8.40,https://www.monkeyjamsshed.co.uk/product/assorted-m3-socket-cap-bolts-nuts-hex-nyloc-washers-allen-key-set-a2-70-stainless-steel-300-pieces/,Monkeyjams Shed,2026-10-26,verified,335,"covers all joints",FlyingTech £11.99
+fasteners,M2.5 fixing kit 120pc,M2.5A-KIT,Component Shop,1,3.50,https://www.componentshop.co.uk/hardware/fixing-kits.html,Component Shop,2026-10-26,verified,50,"small brackets+PCB",-
+inserts,Heat-set inserts M3x5x4 50pc,HSI-M3-5x4,generic brass,1,5.00,https://jb3d.uk/product/50-threaded-heat-set-inserts-m3-x-d4-6-x-l4-0/,JB3D,2026-10-26,verified,100,"Voron spec; ~35 used",ruthex £8.25/100
+bearings,6700ZZ 10x15x4 8pc,6700ZZ,3DJAKE,1,5.65,https://www.3djake.uk/3djake/ball-bearing,3DJake,2026-10-26,verified,20,"joint idler shafts",ModelFixings £6.40/4
+bearings,MR126ZZ 6x12x4 10pc,MR126ZZ,Reely,1,5.70,https://www.rapidonline.com/reely-mr-126-zz-rc-car-style-ball-bearings-12mm-od-6mm-bore-50-6564,Rapid,2026-10-26,verified,3,"small joint support",623ZZ
+shafts,Dowel pins 3/4mm x16-30mm 20pc,DIN6325,GWR Fasteners,1,3.91,https://www.ebay.co.uk/itm/291500687921,eBay UK,2026-10-26,verified,40,"joint pivot shafts",WDS £0.26ea
+servo_hw,Metal 25T servo horns x4,FK-AB-3,Feetech-compat,1,4.99,https://www.rccontrolfreak.co.uk/product/25t-m3-metal-aluminium-rc-servo-arm-horn-for-futaba-savox-xcore-hl-hsp,RC Control Freak,2026-10-26,verified,20,"knee/ankle/hip high-load joints",scorchedparts 7075 £7
+consumable,Nylon/PTFE washer kit 640pc,NW-640,Sutemribor,1,8.00,https://www.amazon.co.uk/Sutemribor-Washers-Screws-Bolts-Assorted/dp/B0CNYKW9G2,Amazon UK,2026-10-26,verified,150,"joint bearing faces + load spread",PTFE pack £5
+consumable,Threadlocker Loctite 243,243,Loctite,1,7.00,https://www.screwfix.com/,Screwfix,2026-10-26,indicative,15,"metal-metal only — backlash prevention",-
+sense,Foot microswitches x4 (OPTION),submini snap,generic,4,0.60,,CPC,2026-10-26,estimate,2,"contact obs for policies",FSR 402 £7.56
+cam,Pi Camera Module 3 (OPTION v1.5),SC0872,Raspberry Pi,0,24.00,https://thepihut.com/products/raspberry-pi-camera-module-3,The Pi Hut,2026-10-26,verified,4,"NOT in base build — locomotion is proprioceptive",ZeroCam OV5647 £15
+audio,MAX98357A I2S amp (OPTION v2),Adafruit 3006,Adafruit,0,5.70,https://thepihut.com/products/adafruit-i2s-3w-class-d-amplifier-breakout-max98357a,The Pi Hut,2026-10-26,verified,2,"+4ohm speaker ~£3; Pi-driven",-
+tool,Pinecil V2 soldering iron (if absent),PinecilV2,Pine64,0,55.00,https://testclips.co.uk/,UK suppliers,2026-10-26,verified,100,"tools-from-zero line, not in build cost",£15-25 basic iron
+tool,Hex driver set 1.5-3mm (if absent),generic,generic,0,10.79,https://emodels.co.uk/,eModels,2026-10-26,verified,200,"tools-from-zero",-
+tool,Calipers 150mm (if absent),generic,generic,0,15.86,https://www.bolthole.co.uk/,BoltHole,2026-10-26,verified,150,"tools-from-zero; fit checks",Toolstation
+tool,Multimeter basic (if absent),generic,generic,0,12.00,,Amazon UK,2026-10-26,estimate,150,"tools-from-zero",-
+tool,Hardened nozzle for CF filament,generic,generic,0,10.00,,3DJake,2026-10-26,indicative,10,"only if printing CF on brass nozzle",-
