@@ -107,9 +107,9 @@ Knoll wins on the combined merits: the dome is simultaneously the mascot identit
 - Colourways: Sage (green dome/moss sprout), Terracotta, Graphite — user prints their own; accent = topper + smile trim
 - Pinch mitigation: leg openings shrouded by dome skirt so fingers can't reach the hip pinch zone; servo horns recessed
 
-## Concept visualisations — LIMITATION
+## Concept visualisations
 
-Blender MCP was configured but no live Blender instance was reachable during this session, so **no renders were produced**. ASCII orthographics below are proportion diagrams only — not engineering geometry. Roadmap P0.2 creates real CAD; any future images must be labelled "concept visualisation, not verified geometry".
+First rendered concept set produced on branch `design/knoll-shell-v0` → `design/renders/shell-v0/` (three shell variants, Blender 4.5 headless, concept visualisation only). ASCII orthographics below are proportion diagrams only — not engineering geometry. Roadmap P0.2 creates real CAD; any future images must be labelled "concept visualisation, not verified geometry".
 
 **Knoll (selected) — front / side / three-quarter:**
 
