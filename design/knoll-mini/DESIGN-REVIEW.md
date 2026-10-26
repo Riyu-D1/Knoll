@@ -7,38 +7,36 @@ every component, cheap servos welcome, eyes used functionally — "think like a 
 
 ## 2. What got built
 
-A fully parametric Blender model at **~192 mm tall**: same family architecture as Microduck —
+A fully parametric Blender model at **~162 mm tall**: same family architecture as Microduck —
 5-DOF legs, static flipper shells, actuated neck, big head — but scaled-down around parts that
 actually exist at this size, and 100% Knoll-generated geometry (no Pollen meshes — this is the
 first fully-original geometry pass).
 
 ```
-feet+ankle 30 mm → shin 28 → knee → femur 32 → hip 90 → trunk 40 → neck 22 → head 28 = ~192 mm
+feet+ankle 22 mm → shin 22 → knee → femur 24 → hip 68 → trunk 34 → neck 25 → head 24 = ~162 mm
 ```
 
-The squatness is deliberate: legs shorter relative to the body than Microduck's (whose legs are
-long for its gait); at ~350 g the stability envelope benefits, and it reads more mascot/droid
-than scaled-down-humanoid.
+The big-head/small-body proportion is deliberate: at 16 cm the head *must* stay 68 mm wide to
+house the eye sensor pods, and the oversized face is what makes it read as a mascot droid rather
+than a scaled-down humanoid — same trick BDX uses.
 
-## 3. Servo selection — the constraint that sized everything
+## 3. Servo decision — config B locked
 
-At 15–20 cm the leg needs ~0.2 N·m working torque at ~350 g mass. Options:
+First pricing pass was wrong (STS3032 ≈ £20 street, not £14). Re-surveyed the real market —
+see `BOM.md` for the full table and all four configs. Chosen:
 
-| Servo | N·m (rated/stall) | g | £ | Verdict |
-|-------|-------------------|---|---|---------|
-| Dynamixel XL330 | 0.4 / 1.0 | 18 | ~45 | Too expensive for "cheap" |
-| Hiwonder LX-16A | — / 1.9 | 53 | 15 | Too big: legs would be servo towers |
-| Feetech STS3215 | 0.5 / 1.9 | 55 | 16 | Fallback upgrade (frame accepts it) |
-| **Feetech STS3032** | **0.15 / 0.44** | **20** | **~14** | **Chosen: smallest serial bus w/ feedback** |
-| Feetech SCS0009 | 0.07 / 0.22 | 9 | 9 | Head servos (low load) |
-| SG90-class analog | ~0.18 / — | 9 | 3 | Rejected: no position/temp/load feedback = no walking policy, no compliance, no recovery sensing |
+**12× Feetech SCS0009 / Waveshare SC09 — ~£105 total.** Serial TTL bus, magnetic-encoder
+feedback (position, load, temp, voltage) on every joint — the Microduck-class control path
+stays open — at £8.75/servo. 13 g each keeps total mass ~250 g, which is what makes the
+0.22 N·m stall torque adequate at 16 cm scale (knee worst case ~0.11 N·m).
 
-Serial bus is the non-negotiable: daisy-chained wiring + full feedback is what makes a
-Microduck-family robot *function*. The saving comes from the servo class, not the protocol.
+Alternatives rejected: STS3032 (fits, but £200+ bill), LX-15D/SCS15 (cheap torque but 40 mm
+servos force ~24 cm robot — violates the size constraint), MG90S analog (£36 but zero feedback
+→ no compliance, no recovery sensing, no RL path — saves £70 by cutting the robot's purpose).
 
-**Flag #1 — knee margin:** 0.15 N·m rated is tight. Gait must stay bent-knee; if it stalls,
-`SV_LEG` swaps to STS3215 and the whole frame re-sizes (parametric). This is the same honest
-class of warning as the Mk1 knee breach — flagged, not hidden.
+**Flag:** 0.07 N·m rated torque is the thin margin — gait must stay bent-knee, recovery will be
+careful not athletic. Escape hatch: SCS0009 and STS3032 share a footprint within 3 mm, so the
+4 load joints upgrade for +£40 without a frame redesign.
 
 ## 4. The eyes — Imagineer pass
 
@@ -49,39 +47,41 @@ BDX's eyes read as reflector lamps. So: each eye is a **light ring + sensor pod*
 - Both rings → WS2812s → the eyes glow, blink, change color — expression is the light layer;
   the sensor looks through the ring's open center.
 
-One cosmetic surface doing three jobs = how an 84 mm head stays 84 mm. Mic hole and speaker
-grille dots ride the same face plate. Antenna stays thin wire (BDX-faithful).
+One cosmetic surface doing three jobs = how a 68 mm head carries vision + depth + mic hole +
+speaker grille. Antenna stays thin wire (BDX-faithful).
 
 ## 5. Layout / packaging
 
-- **Trunk (64×52×40):** battery floor → main PCB stack → IMU ceiling; chest service panel +
-  vents on the front face; power button + USB slot on the rear.
-- **Head (84×46×28):** face plate + eye rings/sensors on the front; `SLOT_HEAD_ELEC` interior
-  tray for ring wiring + camera/ToF flex + mic.
-- **Neck (22 mm):** pitch servo low, yaw servo high, both SCS0009, shared wiring column.
-- **Flippers:** static shells with orange tips — recovery bumpers, same job as Microduck's
+- **Trunk (40 deep × 50 wide × 34):** battery floor → main PCB stack → IMU ceiling; chest service
+  panel + vents front; power button + USB rear. Speaker behind the panel.
+- **Head (68×38×24):** face plate + eye rings/sensors front; `SLOT_HEAD_ELEC` interior tray for
+  ring wiring + camera/ToF flex + mic.
+- **Neck (25 mm):** NPITCH horizontal in trunk ceiling; NYAW servo body *is* the exposed column —
+  BDX-faithful visible mechanics; wiring channel behind.
+- **Flippers:** static shells + orange tips — recovery bumpers, same job as Microduck's
   (which were never actuated).
-- **Feet:** 52×34 mm, ~27% of width each — wide footprint for the squat stance.
+- **Feet:** 44×28 mm at ±16.5 mm hips — ~5 mm clear stance.
 
 ## 6. Cost
 
-**≈ £250 all-in** (≈ £235 with MPU-6050 fallback IMU) vs ~£650+ for genuine-servo Microduck.
-Breakdown + alternates in `BOM.md`.
+**≈ £190 all-in** (≈ £180 with MPU-6050 fallback IMU) vs ~£650+ for genuine-servo Microduck.
+Breakdown + rejected alternates in `BOM.md`.
 
 ## 7. What this is NOT yet (build-gate list)
 
 - Mounting detail: the STLs are shells + proxies — screw bosses, insert pockets and bracket
   holes are marked by slots, not final-cut. Next pass adds real fastener geometry.
-- Knee torque: rated 0.15 N·m vs ~0.2 N·m worst case — needs either the bent-gait assumption
-  verified or the STS3215 swap.
-- Recovery: flipper geometry gives the rounded contact shell; whether 12-DOF + 350 g self-rights
-  like Microduck is a sim question, not yet answered.
+- Knee torque: 0.22 N·m stall vs ~0.11 N·m working — fine bent; marginal straight. Needs the
+  gait assumption held in practice.
+- Recovery: flipper bumpers + rounded head give the contact geometry; whether 12-DOF + 250 g
+  self-rights like Microduck is a sim question, not yet answered.
 - Fit-check: print the `parts/` set first as a mock-up before committing to a full build.
 
 ## 8. Decisions for the user
 
-1. **2 neck DOF vs 4** — saved 2 servos + 40 g + £18; add back if head motion feels dead.
-2. **STS3032 vs STS3215** — cheap+small now, or +£60 +50 g for real torque margin.
-3. **Camera eye**: OV2640 (self-contained, cheap) vs Pi-camera (better image, needs Pi-class
-   host — changes the whole compute story).
-4. **BNO085 vs MPU-6050** — £8 buys real sensor fusion; the cheap path works but adds software risk.
+1. **2 neck DOF vs 4** — saved 2 servos + ~£17 + ~26 g; add back if head motion feels dead.
+2. **BNO085 vs MPU-6050** — £8 buys real sensor fusion; cheap path adds software risk.
+3. **Camera eye**: OV2640 (cheap, self-contained) vs Pi-camera (better image, changes the whole
+   compute story to Pi-class).
+4. **Speaker**: 16 mm behind chest panel vs moving it into the head (better voice direction,
+   harder wiring).

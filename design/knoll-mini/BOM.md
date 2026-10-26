@@ -1,7 +1,8 @@
 # Knoll Mini — Bill of Materials & Cost
 
-Target: **~19 cm, ~350 g, ~£230 all-in** — vs Microduck's ~25 cm / ~800 g / ~£650+ (genuine XL330s).
-All prices GBP, typical AliExpress/generic-supplier prices (Nov 2025).
+**Locked config: B — ~16 cm, ~250 g, ~£200 all-in** (12× SCS0009 serial servos)
+vs Microduck's ~25 cm / ~800 g / ~£650+ (genuine XL330s).
+All prices GBP, real AliExpress/supplier street prices (Nov 2025).
 
 ## Actuators — corrected street prices (Nov 2025)
 
@@ -26,7 +27,15 @@ First-pass pricing was wrong: STS3032 is **~£20 on AliExpress, not £14**. Re-s
 
 **D. Cheapest possible — all MG90S analog** — 12× ~£3 ≈ **£36**, stays 19 cm. No position/load feedback → Otto-style scripted oscillator gaits only; loses Microduck-style compliance sensing and RL-pipeline compatibility. Self-recovery becomes scripted at best.
 
-**Torque math:** knee worst case ≈ mass × g × leg lever (~60 mm). 350 g → 0.21 N·m; 230 g → 0.14 N·m; 800 g → 0.5 N·m. Serial feedback is what makes Microduck-family control possible; analog saves ~£100 but forecloses the RL path.
+**Torque math:** knee worst case ≈ mass × g × leg lever (~45 mm at 16 cm). 250 g → ~0.11 N·m vs SCS0009 stall 0.22 / rated 0.07 — workable for gentle walking with bent-knee gait, marginal at full extension. This is the accepted trade for ~£8.75/servo. Serial feedback (position, load, temp, voltage) is retained on every joint — Microduck-style control path preserved.
+
+### CHOSEN — Option B actuator set
+
+| Qty | Part | Role | Unit £ | Sub £ |
+|-----|------|------|--------|-------|
+| 12 | Feetech SCS0009 / Waveshare SC09 (serial TTL, 13 g, 23×12×25 mm, 0.22 N·m stall, full feedback) | All joints: 5/leg + neck pitch + yaw | 8.5 | ~102 |
+
+**Flag:** rated torque 0.07 N·m means knees run warm; gait must stay flexed. If it proves weak in practice, Option A (4× STS3032 on load joints, +£40) drops into the same footprint — SCS0009 and STS3032 are dimensioned within 3 mm of each other.
 
 ## Electronics
 
@@ -47,7 +56,7 @@ First-pass pricing was wrong: STS3032 is **~£20 on AliExpress, not £14**. Re-s
 
 | Qty | Part | Unit £ |
 |-----|------|--------|
-| 1 | 2S 450 mAh LiPo (~48×28×14 mm — battery slot sized to this) | 9 |
+| 1 | 2S 300 mAh LiPo (~34×24×10 mm — battery slot sized to this) | 8 |
 | 1 | USB-C 2S balance charger module | 6 |
 | 1 | Power switch + JST leads | 3 |
 
@@ -64,11 +73,11 @@ First-pass pricing was wrong: STS3032 is **~£20 on AliExpress, not £14**. Re-s
 
 | Scope | £ |
 |-------|---|
-| Actuators | 158 |
+| Actuators | ~102 |
 | Electronics | ~48 |
-| Power | 18 |
+| Power | ~15 |
 | Structure | ~25 |
-| **Build total** | **≈ £250** (≈ £235 with MPU-6050 instead of BNO085) |
+| **Build total** | **≈ £190** (≈ £180 with MPU-6050 instead of BNO085) |
 
 ## The eyes — Imagineer logic
 

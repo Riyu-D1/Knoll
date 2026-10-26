@@ -29,19 +29,21 @@ PARTS = os.path.join(OUT, "parts")
 os.makedirs(IMG, exist_ok=True)
 os.makedirs(PARTS, exist_ok=True)
 
+bpy.ops.object.select_all(action="SELECT")
+bpy.ops.object.delete()  # wipe default cube/light/camera
+
 MM = 0.001  # work in metres, dims given in mm
 S = lambda *v: tuple(x * MM for x in v)      # mm tuple -> m
 P = lambda *v: tuple(x * MM for x in v)
 
 # ---------------- dims (mm) -----------------------------------------------
-SV_LEG = S(23.2, 12.1, 28.5)      # STS3032 body
-SV_HEAD = S(17.0, 9.0, 22.0)      # SCS0009-class micro body (approx)
-FOOT = S(52, 34, 8)
-FEMUR, SHIN = 32.0, 28.0          # link lengths between joint axes
-TRUNK = S(64, 52, 40)             # W(y) D(x) H
-NECK_H = 22.0
-HEAD_W, HEAD_D, HEAD_H = 84.0, 46.0, 28.0
-HIP_Y = 15.0                      # hip lateral offset
+SV_LEG = S(23.2, 12.1, 25.25)     # SCS0009 / Waveshare SC09 body — all 12 joints
+FOOT = S(44, 28, 7)
+FEMUR, SHIN = 24.0, 22.0          # link lengths between joint axes
+TRUNK = S(40, 50, 34)             # (x depth, y width, z height)
+NECK_H = 25.0                     # NYAW servo body IS the neck column
+HEAD_W, HEAD_D, HEAD_H = 68.0, 38.0, 24.0
+HIP_Y = 16.5                      # hip lateral offset (feet clear by ~4mm)
 
 
 def M(name, rgb, rough=0.5, metal=0.0, emit=0.0, alpha=1.0):
@@ -61,9 +63,9 @@ def M(name, rgb, rough=0.5, metal=0.0, emit=0.0, alpha=1.0):
 
 
 WHITE = M("white", (0.85, 0.84, 0.80), 0.5)
-DARK = M("dark", (0.08, 0.08, 0.09), 0.3, 0.3)
+DARK = M("dark", (0.05, 0.05, 0.06), 0.6, 0.05)
 GREY = M("grey", (0.30, 0.31, 0.33), 0.45)
-ORANGE = M("orange", (0.95, 0.42, 0.12), 0.4)
+ORANGE = M("orange", (0.78, 0.22, 0.02), 0.4)
 YELLOW = M("sole", (0.95, 0.72, 0.16), 0.5)
 STEEL = M("steel", (0.62, 0.66, 0.70), 0.3, 0.6)
 GREEN = M("pcb", (0.16, 0.32, 0.24), 0.5)
@@ -140,10 +142,10 @@ def servo(name, dims, loc, cname, shaft_axis="Y", body_mat=GREY):
 
 # ================= LEGS ===================================================
 # chain: hip_yaw(under trunk) -> hip_roll -> hip_pitch -> knee -> ankle -> foot
-ankle_z = 0.030        # ankle axis (foot 8mm + servo half-height)
+ankle_z = 0.022        # ankle axis (foot 7mm + servo half-height)
 knee_z = ankle_z + SHIN * MM
 hip_z = knee_z + FEMUR * MM
-trunk_z0 = hip_z + 0.008       # trunk bottom just above hip servos
+trunk_z0 = hip_z + 0.007       # trunk bottom just above hip servos
 
 for sgn, tag in ((1, "L"), (-1, "R")):
     y = sgn * HIP_Y * MM
@@ -164,43 +166,43 @@ for sgn, tag in ((1, "L"), (-1, "R")):
     cube(f"SHIN_{tag}", S(12, 14, SHIN - 6), (0, y, (knee_z + ankle_z) / 2),
          cn, WHITE, bev=0.004)
     # ankle servo
-    servo(f"ANKLE_{tag}", SV_LEG, (0.008, y, ankle_z + 0.006), cn)
+    servo(f"ANKLE_{tag}", SV_LEG, (0.006, y, ankle_z + 0.004), cn)
     # foot: orange frame + yellow sole
-    cube(f"FOOT_{tag}", FOOT, (0.008, y, 0.008), cn, ORANGE, bev=0.005)
-    cube(f"SOLE_{tag}", S(48, 30, 3), (0.008, y, 0.0015), cn, YELLOW, bev=0.001)
-    cube(f"TOE_{tag}", S(10, 32, 6), (0.033, y, 0.011), cn, ORANGE, bev=0.002)
+    cube(f"FOOT_{tag}", FOOT, (0.006, y, 0.0035), cn, ORANGE, bev=0.004)
+    cube(f"SOLE_{tag}", S(41, 27, 2.5), (0.006, y, 0.0012), cn, YELLOW, bev=0.001)
+    cube(f"TOE_{tag}", S(9, 28, 5), (0.026, y, 0.008), cn, ORANGE, bev=0.002)
 
 # ================= TRUNK =================================================
 tzc = trunk_z0 + TRUNK[2] / 2
-cube("TRUNK_SHELL", TRUNK, (0, 0, tzc), "TRUNK", WHITE, bev=0.010)
-# front service panel (BDX-style chest plate)
-cube("CHEST_PANEL", (0.006, TRUNK[1] * 0.7, TRUNK[2] * 0.55),
-     (TRUNK[0] / 2 * 0 + TRUNK[2] * 0 + 0.032, 0, tzc + 0.002), "TRUNK", DARK, bev=0.003)
+cube("TRUNK_SHELL", TRUNK, (0, 0, tzc), "TRUNK", WHITE, bev=0.008)
+# front service panel (BDX-style chest plate) — trunk front face at x=0.020
+cube("CHEST_PANEL", (0.005, TRUNK[1] * 0.7, TRUNK[2] * 0.55),
+     (0.0205, 0, tzc + 0.002), "TRUNK", DARK, bev=0.002)
 # vent slots under the panel
 for i in range(3):
-    cube(f"VENT_{i}", (0.004, TRUNK[1] * 0.5, 0.003),
-         (0.032, 0, tzc - TRUNK[2] * 0.36 + i * 0.007), "TRUNK", GREY)
+    cube(f"VENT_{i}", (0.003, TRUNK[1] * 0.5, 0.0025),
+         (0.0205, 0, tzc - TRUNK[2] * 0.36 + i * 0.006), "TRUNK", GREY)
 # power button + charge port on rear
-cyl("PWR_BTN", 0.004, 0.003, (-0.033, 0.012, tzc + 0.008), "TRUNK", GREY,
+cyl("PWR_BTN", 0.0035, 0.003, (-0.0205, 0.010, tzc + 0.006), "TRUNK", GREY,
     rot=(0, 1.5708, 0))
-cube("USB_SLOT", (0.003, 0.010, 0.004), (-0.033, -0.008, tzc + 0.004), "TRUNK", DARK)
+cube("USB_SLOT", (0.003, 0.009, 0.0035), (-0.0205, -0.007, tzc + 0.004), "TRUNK", DARK)
 
 # flippers: static arm shells on trunk sides (recovery bumpers)
 for sgn, tag in ((1, "L"), (-1, "R")):
-    fp = cube(f"FLIPPER_{tag}", S(38, 16, 36),
-              (0.002, sgn * (TRUNK[1] / 2 + 0.006), tzc - 0.010),
-              "ARMS", WHITE, rot=(0, 0.10 * sgn, 0), bev=0.007)
-    cube(f"FLIP_TIP_{tag}", S(36, 16, 7),
-         (0.002, sgn * (TRUNK[1] / 2 + 0.008), tzc - 0.026),
-         "ARMS", ORANGE, rot=(0, 0.10 * sgn, 0), bev=0.003)
+    fp = cube(f"FLIPPER_{tag}", S(32, 13, 28),
+              (0.002, sgn * (TRUNK[1] / 2 + 0.005), tzc - 0.007),
+              "ARMS", WHITE, rot=(0, 0.10 * sgn, 0), bev=0.006)
+    cube(f"FLIP_TIP_{tag}", S(30, 13, 6),
+         (0.002, sgn * (TRUNK[1] / 2 + 0.007), tzc - 0.019),
+         "ARMS", ORANGE, rot=(0, 0.10 * sgn, 0), bev=0.002)
 
 # ================= COMPONENTS (real slots) ===============================
 # inside trunk: battery / PCB stack / IMU / speaker — shown through slots
 comp = [
-    ("BATTERY_2S_450", S(48, 28, 14), (0, 0, tzc - 0.011), BATT, "2S 450mAh LiPo"),
-    ("PCB_ESP32S3", S(40, 32, 7), (0, 0, tzc + 0.002), GREEN, "ESP32-S3 + bus hub + 6V buck"),
-    ("IMU_BNO085", S(18, 16, 5), (0.010, -0.012, tzc + 0.014), GREEN, "BNO085 IMU"),
-    ("SPEAKER_20MM", (0.020, 0.020, 0.006), (0.024, 0.010, tzc - 0.006), DARK, "20mm 8ohm spkr"),
+    ("BATTERY_2S_300", S(34, 24, 10), (0, 0, tzc - 0.009), BATT, "2S 300mAh LiPo"),
+    ("PCB_ESP32S3", S(32, 24, 6), (0, 0, tzc + 0.002), GREEN, "ESP32-S3 + bus hub + 6V buck"),
+    ("IMU_BNO085", S(16, 14, 4), (0.008, -0.010, tzc + 0.011), GREEN, "BNO085 IMU"),
+    ("SPEAKER_16MM", (0.016, 0.016, 0.005), (0.017, 0.008, tzc - 0.005), DARK, "16mm 8ohm spkr"),
 ]
 for name, dims, loc, mat, label in comp:
     o = cube(name, dims, loc, "COMPONENTS", mat)
@@ -211,10 +213,12 @@ for name, dims, loc, mat, label in comp:
 
 # ================= NECK =================================================
 neck_z0 = trunk_z0 + TRUNK[2]
-# SCS0009 is ~22mm long: pitch servo low (axis = Y), yaw servo above (axis = Z)
-servo("NPITCH", SV_HEAD, (0.026, 0, neck_z0 + 0.005), "NECK")
-servo("NYAW", SV_HEAD, (0.026, 0, neck_z0 + NECK_H * MM - 0.005), "NECK")
-cyl("NECK_COL", 0.008, NECK_H * MM - 0.010, (0.026, 0, neck_z0 + NECK_H * MM / 2), "NECK", GREY)
+# NPITCH lies horizontally inside the trunk ceiling (pitch axis = Y);
+# NYAW servo body IS the visible neck column (BDX-faithful exposed mech)
+servo("NPITCH", (SV_LEG[0], SV_LEG[2], SV_LEG[1]),
+      (0.008, 0, neck_z0 - 0.007), "NECK")
+servo("NYAW", SV_LEG, (0.020, 0, neck_z0 + NECK_H * MM / 2 - 0.002), "NECK")
+cyl("NECK_CABLE", 0.003, NECK_H * MM - 0.006, (0.005, 0, neck_z0 + NECK_H * MM / 2), "NECK", DARK)
 
 # ================= HEAD (BDX bar) =======================================
 hz0 = neck_z0 + NECK_H * MM + 0.004          # bar bottom
@@ -226,42 +230,42 @@ cube("HEAD_BAR", S(HEAD_D, HEAD_W, HEAD_H), (hcx, 0, hzc), "HEAD", WHITE, bev=0.
 fp_w, fp_h = HEAD_W * 0.88 * MM, HEAD_H * 0.80 * MM
 cube("FACE_PLATE", (0.006, fp_w, fp_h), (face_x + 0.001, 0, hzc), "HEAD", DARK, bev=0.004)
 # lamp eyes: ring + lit lens; sensors live behind the rings
-eye_r, eye_z, eye_dy = 0.0095, hzc + 0.002, 0.018
+eye_r, eye_z, eye_dy = 0.008, hzc + 0.001, 0.0135
 for sgn, tag in ((1, "L"), (-1, "R")):
-    cyl(f"EYE_RING_{tag}", eye_r, 0.005, (face_x + 0.004, sgn * eye_dy, eye_z),
+    cyl(f"EYE_RING_{tag}", eye_r, 0.004, (face_x + 0.003, sgn * eye_dy, eye_z),
         "HEAD", DARK, rot=(0, 1.5708, 0))
-    cyl(f"EYE_{tag}", eye_r * 0.66, 0.004, (face_x + 0.008, sgn * eye_dy, eye_z),
+    cyl(f"EYE_{tag}", eye_r * 0.66, 0.003, (face_x + 0.006, sgn * eye_dy, eye_z),
         "HEAD", EYEM, rot=(0, 1.5708, 0))
 # speaker dot grids flanking eyes (kept inside the plate width)
 for sgn in (1, -1):
     for r in range(2):
         for c in range(3):
-            cyl(f"SPK_{'L' if sgn>0 else 'R'}_{r}{c}", 0.0013, 0.002,
-                (face_x + 0.004, sgn * (0.029 + c * 0.0035), hzc - 0.004 + r * 0.006),
+            cyl(f"SPK_{'L' if sgn>0 else 'R'}_{r}{c}", 0.0011, 0.002,
+                (face_x + 0.003, sgn * (0.023 + c * 0.0025), hzc - 0.003 + r * 0.005),
                 "HEAD", DARK, rot=(0, 1.5708, 0))
 # side pods
 for sgn, tag in ((1, "L"), (-1, "R")):
-    cyl(f"EAR_{tag}", 0.008, 0.004, (hcx, sgn * (HEAD_W / 2 * MM + 0.002), hzc),
+    cyl(f"EAR_{tag}", 0.006, 0.003, (hcx, sgn * (HEAD_W / 2 * MM + 0.0015), hzc),
         "HEAD", GREY, rot=(1.5708, 0, 0))
-    cyl(f"EAR_CAP_{tag}", 0.004, 0.005, (hcx, sgn * (HEAD_W / 2 * MM + 0.003), hzc),
+    cyl(f"EAR_CAP_{tag}", 0.003, 0.004, (hcx, sgn * (HEAD_W / 2 * MM + 0.002), hzc),
         "HEAD", ORANGE, rot=(1.5708, 0, 0))
 # antenna wire rear-left
-cyl("ANT_MAST", 0.001, 0.024, (hcx - HEAD_D * MM * 0.32, -HEAD_W * MM * 0.30, hz0 + HEAD_H * MM + 0.012),
+cyl("ANT_MAST", 0.0009, 0.016, (hcx - HEAD_D * MM * 0.32, -HEAD_W * MM * 0.30, hz0 + HEAD_H * MM + 0.008),
     "HEAD", GREY, rot=(0.05, 0.08, 0))
 # chin ledge
 cube("CHIN", (0.009, fp_w * 0.5, 0.006), (face_x - 0.005, 0, hz0 - 0.001), "HEAD", WHITE, bev=0.003)
 
 # sensor pods behind the eyes — L=camera, R=ToF (the Imagineer trick)
-cam_o = cyl("CAM_POD", 0.006, 0.012, (face_x - 0.012, eye_dy, eye_z), "COMPONENTS", CAMM, rot=(0, 1.5708, 0))
+cam_o = cyl("CAM_POD", 0.0045, 0.010, (face_x - 0.010, eye_dy, eye_z), "COMPONENTS", CAMM, rot=(0, 1.5708, 0))
 cam_o["component"] = "OV2640 camera (behind L eye ring)"
-cyl("CAM_LENS", 0.0035, 0.004, (face_x - 0.002, eye_dy, eye_z), "COMPONENTS", CAMM, rot=(0, 1.5708, 0))
-tof = cube("TOF_POD", S(10, 10, 5), (face_x - 0.012, -eye_dy, eye_z), "COMPONENTS", GREEN)
+cyl("CAM_LENS", 0.003, 0.003, (face_x - 0.003, eye_dy, eye_z), "COMPONENTS", CAMM, rot=(0, 1.5708, 0))
+tof = cube("TOF_POD", S(8, 8, 4), (face_x - 0.010, -eye_dy, eye_z), "COMPONENTS", GREEN)
 tof["component"] = "VL53L0X ToF (behind R eye ring)"
 # WS2812 rings inside the eyes (the glow hardware)
 for sgn, tag in ((1, "L"), (-1, "R")):
-    bpy.ops.mesh.primitive_torus_add(major_radius=eye_r * 0.8, minor_radius=0.0015,
+    bpy.ops.mesh.primitive_torus_add(major_radius=eye_r * 0.8, minor_radius=0.0012,
                                      major_segments=32,
-                                     location=(face_x + 0.006, sgn * eye_dy, eye_z),
+                                     location=(face_x + 0.005, sgn * eye_dy, eye_z),
                                      rotation=(0, 1.5708, 0))
     o = bpy.context.active_object
     o.name = f"LEDRING_{tag}"
@@ -270,7 +274,7 @@ for sgn, tag in ((1, "L"), (-1, "R")):
     link("COMPONENTS", o)
 
 # head internals volume marker
-hv = cube("SLOT_HEAD_ELEC", S(HEAD_D - 10, HEAD_W - 16, 8), (hcx, 0, hz0 + 0.008), "SLOTS", SLOTM)
+hv = cube("SLOT_HEAD_ELEC", S(HEAD_D - 8, HEAD_W - 14, 6), (hcx, 0, hz0 + 0.006), "SLOTS", SLOTM)
 hv["slot_for"] = "head: eye rings wiring, camera FPC, ToF flex, mic slot"
 
 # ================= stage + render =======================================
@@ -283,7 +287,7 @@ w.use_nodes = True
 bg = next(n for n in w.node_tree.nodes if n.type == "BACKGROUND")
 bg.inputs[0].default_value = (0.02, 0.02, 0.025, 1)
 bg.inputs[1].default_value = 0.25
-for loc, e in [((0.4, -0.4, 0.5), 40), ((-0.4, 0.3, 0.4), 24), ((0.1, 0.4, 0.2), 14)]:
+for loc, e in [((0.4, -0.4, 0.5), 18), ((-0.4, 0.3, 0.4), 11), ((0.1, 0.4, 0.2), 7)]:
     d = bpy.data.lights.new("a", "AREA")
     d.energy = e
     d.shape = "DISK"
@@ -332,6 +336,7 @@ def setcol(n, hide):
 
 
 setcol("SLOTS", True)
+setcol("COMPONENTS", True)   # internals only — LED rings/pods must not leak through the face
 cam("hero", (0.30, -0.24, 0.22))
 render("hero-3q")
 print(f"[dims] height ~{top_z*1000:.0f}mm")
