@@ -203,63 +203,69 @@ hi_min = Vector((min(v.x for v in all_hi), min(v.y for v in all_hi), min(v.z for
 hi_max = Vector((max(v.x for v in all_hi), max(v.y for v in all_hi), max(v.z for v in all_hi)))
 print(f"[head internals] {[(a, b) for a, b in zip(hi_min, hi_max)]}")
 
-# shell dims = internals + margin, snapped to min size
-M = 0.006  # wall margin
-cx = (hi_min.x + hi_max.x) / 2
+# --- BDX-style head: wide slab "binocular bar" wrapping the internals ---
+# internals (mm): X -18..90, Y -40..34, Z 231..266  -> bar encloses them
+M = 0.006
+bx0, bx1 = hi_min.x - M, hi_max.x + 0.008   # rear/front faces
+W = 0.115                                    # wider than internals (BDX bar look)
 cy = (hi_min.y + hi_max.y) / 2
-z0 = 0.197                                    # extend down to neck (encloses head servos)
-z1 = hi_max.z + M                        # dome top
-W = max(hi_max.y - hi_min.y + 2 * M, 0.090)   # width (Y)
-D = max(hi_max.x - hi_min.x + 2 * M, 0.108)   # depth (X, face at +X)
-H = z1 - z0
-print(f"[head shell] W{W*1000:.0f} D{D*1000:.0f} H{H*1000:.0f} z {z0*1000:.0f}..{z1*1000:.0f}")
+bz0 = 0.230                                  # exposes head_pitch servo = BDX neck
+bz1 = hi_max.z + M                           # ~0.272 -> still <= 277 overall
+cx = (bx0 + bx1) / 2
+face_x = bx1
+print(f"[head bar] W{W*1000:.0f} D{(bx1-bx0)*1000:.0f} H{(bz1-bz0)*1000:.0f} z {bz0*1000:.0f}..{bz1*1000:.0f}")
 
-SHELL = mat_principled("shell_white", (0.92, 0.92, 0.90), rough=0.35)
-VISOR = mat_principled("visor", (0.05, 0.05, 0.06), rough=0.12, metal=0.3)
-EYEM = mat_principled("eye", (0.35, 0.75, 1.0), rough=0.2, emit=8.0)
+SHELL = mat_principled("shell_white", (0.82, 0.81, 0.78), rough=0.5)
+VISOR = mat_principled("visor", (0.07, 0.07, 0.08), rough=0.2, metal=0.35)
+EYEM = mat_principled("eye", (1.0, 0.95, 0.8), rough=0.15, emit=10.0)
+RING = mat_principled("eye_ring", (0.10, 0.10, 0.11), rough=0.3, metal=0.4)
 ACCENT = mat_principled("accent", (0.95, 0.45, 0.15), rough=0.4)
-EAR = mat_principled("ear", (0.25, 0.25, 0.28), rough=0.4)
+EAR = mat_principled("ear", (0.22, 0.22, 0.24), rough=0.45)
 
-face_x = cx + D / 2  # +X is the face side
-
-# dome: rounded box shell over internals
-dome = cube_obj("HEAD_DOME", (D, W, H), (cx, cy, z0 + H / 2), "HEAD_SHELL",
-                SHELL, bevel=min(0.028, D * 0.28))
-# brow band accent around dome base
-cube_obj("HEAD_BAND", (D * 0.90, W * 0.94, 0.008), (cx, cy, z0 + 0.006),
-         "HEAD_SHELL", ACCENT, bevel=0.003)
-# visor: dark plate on the face (+X), slightly proud
-vis_w = W * 0.72
-vis_h = H * 0.52
-vis = cube_obj("HEAD_VISOR", (0.012, vis_w, vis_h),
-               (face_x + 0.002, cy, z0 + H * 0.58), "HEAD_SHELL", VISOR,
-               bevel=0.010)
-# twin eyes: glowing discs on visor
-eye_r = vis_w * 0.11
-eye_z = z0 + H * 0.60
+# head slab (BDX "bar"): deep rounded box
+cube_obj("HEAD_BAR", (bx1 - bx0, W, bz1 - bz0),
+         (cx, cy, (bz0 + bz1) / 2), "HEAD_SHELL", SHELL, bevel=0.012)
+# dark front face plate inset into the bar
+fp_w, fp_h = W * 0.88, (bz1 - bz0) * 0.80
+cube_obj("FACE_PLATE", (0.008, fp_w, fp_h),
+         (face_x - 0.001, cy, (bz0 + bz1) / 2), "HEAD_SHELL", VISOR, bevel=0.006)
+# lamp eyes: outer dark ring + glowing inner lens
+eye_r, eye_z, eye_dy = 0.0125, (bz0 + bz1) / 2 + 0.003, 0.026
 for sgn, tag in ((1, "L"), (-1, "R")):
-    cyl_obj(f"EYE_{tag}", eye_r, 0.006,
-            (face_x + 0.009, cy + sgn * vis_w * 0.27, eye_z),
-            "HEAD_SHELL", EYEM, rot=(0, 1.5708, 0))
-# mouth slit: thin dark bar under eyes
-cube_obj("MOUTH", (0.010, vis_w * 0.34, 0.006),
-         (face_x + 0.009, cy, z0 + H * 0.40), "HEAD_SHELL", VISOR, bevel=0.003)
-# antenna: mast + tip on dome top, offset rear
-ant_x = cx - D * 0.18
-cyl_obj("ANT_MAST", 0.0025, 0.018, (ant_x, cy, z1 + 0.009), "HEAD_SHELL", EAR)
-bpy.ops.mesh.primitive_ico_sphere_add(radius=0.006, location=(ant_x, cy, z1 + 0.021))
-tip = bpy.context.active_object
-tip.name = "ANT_TIP"
-tip.data.materials.append(ACCENT)
-link_to("HEAD_SHELL", tip)
-# ear pods: short cylinders on +-Y faces
+    cyl_obj(f"EYE_RING_{tag}", eye_r, 0.006,
+            (face_x + 0.003, cy + sgn * eye_dy, eye_z), "HEAD_SHELL", RING,
+            rot=(0, 1.5708, 0))
+    cyl_obj(f"EYE_{tag}", eye_r * 0.62, 0.005,
+            (face_x + 0.007, cy + sgn * eye_dy, eye_z), "HEAD_SHELL", EYEM,
+            rot=(0, 1.5708, 0))
+# speaker dot grids flanking the eyes (2x3 each side)
+for sgn in (1, -1):
+    for r in range(2):
+        for c in range(3):
+            cyl_obj(f"SPK_{'L' if sgn>0 else 'R'}_{r}{c}", 0.0016, 0.003,
+                    (face_x + 0.004, cy + sgn * (0.040 + c * 0.005),
+                     (bz0 + bz1) / 2 - 0.004 + r * 0.009),
+                    "HEAD_SHELL", VISOR, rot=(0, 1.5708, 0))
+# side end pods at +-Y bar ends
 for sgn, tag in ((1, "L"), (-1, "R")):
-    cyl_obj(f"EAR_{tag}", 0.011, 0.008,
-            (cx, cy + sgn * (W / 2 + 0.004), z0 + H * 0.55),
+    cyl_obj(f"EAR_{tag}", 0.010, 0.004,
+            (cx, cy + sgn * (W / 2 + 0.003), (bz0 + bz1) / 2),
             "HEAD_SHELL", EAR, rot=(1.5708, 0, 0))
-    cyl_obj(f"EAR_CAP_{tag}", 0.006, 0.009,
-            (cx, cy + sgn * (W / 2 + 0.006), z0 + H * 0.55),
+    cyl_obj(f"EAR_CAP_{tag}", 0.005, 0.005,
+            (cx, cy + sgn * (W / 2 + 0.004), (bz0 + bz1) / 2),
             "HEAD_SHELL", ACCENT, rot=(1.5708, 0, 0))
+# antenna: thin wire at rear-left corner of the top face
+ant_x, ant_y = bx0 + 0.012, cy - W * 0.32
+cyl_obj("ANT_MAST", 0.0013, 0.030, (ant_x, ant_y, bz1 + 0.015),
+        "HEAD_SHELL", EAR, rot=(0.06, 0.05, 0))
+# neck shroud: dark column bridging neck top (~0.19) to bar base
+cube_obj("NECK_SHROUD", (0.034, 0.028, 0.082), (0.026, cy, 0.190),
+         "HEAD_SHELL", EAR, bevel=0.008)
+cyl_obj("NECK_COLLAR", 0.017, 0.012, (0.026, cy, bz0 - 0.002),
+        "HEAD_SHELL", EAR)
+# small chin ledge flush under the face plate
+cube_obj("CHIN", (0.010, fp_w * 0.55, 0.008),
+         (face_x - 0.009, cy, bz0 - 0.002), "HEAD_SHELL", SHELL, bevel=0.004)
 
 # export head-shell objects as STLs for CAD handoff
 for ob in COLS["HEAD_SHELL"].objects:

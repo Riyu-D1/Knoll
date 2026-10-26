@@ -3,7 +3,7 @@
 First real **Knoll derivative**: the faithful Microduck mechanical core
 (legs, trunk, neck, all electronics layout) with the cosmetic head
 replaced by a **new, original head shell** inspired by Disney's BDX
-droid family (dome + dark visor + twin lit eyes + antenna + ear pods),
+droid family (slab "binocular bar" + dark face plate + lamp eyes + speaker grids + wire antenna + ear pods + visible neck column),
 and cheap-servo proxies standing in for the XL330s.
 
 Head geometry is Knoll-original parametric code (`build_knoll_v1.py`),
@@ -19,7 +19,7 @@ stays Disney's — this is a study/derivative baseline.
 | `build_knoll_v1.py` | Full parametric build (Blender ≥4.5 headless) |
 | `knoll-v1.blend` | Editable scene — `BODY`, `HEAD_INTERNALS`, `HEAD_SHELL`, `SERVO_PROXY`, `JOINTS` collections |
 | `img/` | hero-3q, front, side, rear, head-detail, **internals** (shell hidden — shows component space) |
-| `parts/*.stl` | 12 head-shell pieces (dome, visor, eyes L/R, mouth, band, antenna×2, ears L/R+caps) for CAD handoff |
+| `parts/*.stl` | head-shell pieces (bar, face plate, eyes+rings, speakers, ears+caps, antenna, neck shroud/collar, chin) for CAD handoff |
 
 ## Rebuild
 

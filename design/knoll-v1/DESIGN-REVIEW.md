@@ -11,19 +11,20 @@ reshape freely.
 
 | Part | Notes |
 |---|---|
-| `HEAD_DOME` | rounded-box dome, 90 W × 120 D × 75 H mm, base z=197 mm, top 272 mm — encloses ALL head internals |
-| `HEAD_VISOR` | dark smoked plate on the +X face, 52 mm tall |
-| `EYE_L` / `EYE_R` | glowing cyan discs (emission 8), inset in visor |
-| `MOUTH` | thin slit under eyes |
-| `HEAD_BAND` | orange accent ring at dome base (chin gasket look) |
-| `ANT_MAST` + `ANT_TIP` | 18 mm antenna + orange ball |
-| `EAR_L/R` + caps | side pods — vent/bumper look |
+| `HEAD_BAR` | BDX-style slab/"binocular bar": 122 D × 115 W × 42 H mm, z 230–272 — encloses all head internals |
+| `FACE_PLATE` | dark front face inset, carries eyes + speaker grids |
+| `EYE_L/R` + `EYE_RING_L/R` | reflector-lamp eyes (dark ring + warm glowing lens) |
+| `SPK_L/R_*` | 2×3 perforated speaker dots flanking the eyes |
+| `EAR_L/R` + caps | flush side pods at the bar ends |
+| `ANT_MAST` | thin wire antenna, rear-left top |
+| `NECK_SHROUD` + `NECK_COLLAR` | dark column trunk→bar — the visible BDX-style neck (z≈150–232) |
+| `CHIN` | small ledge under the face plate |
 
 Dropped Microduck cosmetics: top/bottom head shells, face_part, jaw,
 jaw_soft, soft_mouth_top, noenoeil (the duck bill — the single most
 distinctive Microduck feature — is gone, which helps originality).
 
-**Space for components (verified in `img/internals.png`):** the dome
+**Space for components (verified in `img/internals.png`):** the bar
 wraps the full stock electronics pod — M12 lens + holder, Pi Zero 2 W,
 robot-hat PCB, speaker, motor support, 4 head servos — with the lower
 dome volume (z≈197–231 mm) free for added parts: ToF/IMU board,
@@ -57,9 +58,9 @@ shell contact all unchanged.
 
 ## 5. Design decisions for review
 
-1. **Head proportions** — dome is 120 mm deep vs 90 wide (long front-
-   back). BDX heads are rounder; could pull D→~100 mm but the internals
-   PCB needs the depth.
+1. **Head proportions** — the bar is deep (122 mm) because the internals
+   PCB stack needs it; width 115 mm, height 42 mm. Could slim D a few mm
+   if the internals are repacked.
 2. **Eye style** — twin cyan discs now; BDX eyes are bigger/expressive —
    want larger eyes or an LED matrix look instead?
 3. **Antenna** — keep single rear mast or drop it (snag risk in falls)?
