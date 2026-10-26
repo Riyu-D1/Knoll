@@ -19,7 +19,7 @@ slab head whose two lamp-eyes double as the robot's sensors.
 | `build_knoll_mini.py` | Fully parametric generator — Blender 4.x headless, one command rebuilds everything |
 | `knoll-mini.blend` | Editable model; collections `LEG_L/R`, `TRUNK`, `ARMS`, `NECK`, `HEAD`, `COMPONENTS`, `SLOTS` |
 | `img/` | hero, front, side, rear, head-detail, internals renders |
-| `parts/` | 108 STLs — every printed part + servo proxies, ready for a slicer/mock build |
+| `parts/` | 152 STLs — the full printable kit: pockets, collars, shells, trays, bezels |
 | `BOM.md` | Component-by-component cost (~£250) + the engineering trade-offs |
 | `DESIGN-REVIEW.md` | Architecture, torque/mass budget, eye-sensor rationale, open risks |
 
@@ -43,9 +43,28 @@ The `SLOTS` collection holds translucent envelopes showing exactly where each pa
 - **Neck:** NPITCH horizontal in the trunk ceiling + NYAW as the exposed column (BDX-faithful visible mechanics) + wiring channel
 - **Legs:** 5× SCS0009 per side — yaw under trunk floor, roll at trunk corner, pitch/knee/ankle stacked; feet clear by ~5 mm
 
+## Assembly — no glue, all mechanical
+
+Every part mounts with **M2 screws into M2 heat-set brass inserts** (~60 each):
+
+- **Servos (all 12):** drop into printed pockets (0.6 mm clearance), a collar plate clamps the
+  ear flange, 2× M2 screws into boss posts beside the pocket. Horn exits the open side.
+- **Trunk:** `TRUNK_F` + `TRUNK_R` clamshell halves join on 6 seam inserts; chest panel on
+  4 posts; battery sits in a tray with strap slots (velcro tie, not glued); PCB on 4 standoff
+  posts; IMU on 2 posts; speaker press-fits a ring behind the panel.
+- **Head:** `HEAD_SHELL` + `HEAD_BASE` screw together at 4 corners; base plate has the NYAW
+  horn bore + cable slot; `FACE_PLATE` screws on at 4 corners with real bored eye apertures;
+  camera/ToF pods sit in printed brackets; eye bezels press-fit the bores.
+- **Neck:** NYAW servo is the exposed column, clamped top/bottom by collar rings into inserts.
+- **Feet:** sole plate screws up into the foot frame from below (4× M2).
+- **Flippers:** 2× M2 each into trunk-side inserts.
+
+All fasteners/inserts are modeled as objects in the `HARDWARE` collection (hidden in beauty
+renders, shown in `servo-station.png`). `parts/` holds 152 STLs — the full printable kit.
+
 ## Honest status
 
-This is **v0 packaging, not a verified build**: parts have real slots/envelopes but mounting
-holes/insert bosses aren't detailed yet, and the knee torque margin is tight (see BOM.md). The
-STL set is right for a **mock-up print + fit check** — which is the next step before committing
-to a print-all.
+**v1 build-ready geometry** — every component has a real mount now; no glue anywhere. Still
+unverified: knee torque margin (BOM.md), self-recovery in sim, and real-world tolerances.
+**Next step: print the servo-station parts (one pocket+collar) for a fit check before printing
+the whole kit.**

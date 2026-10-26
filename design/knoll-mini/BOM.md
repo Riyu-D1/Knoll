@@ -64,10 +64,11 @@ First-pass pricing was wrong: STS3032 is **~£20 on AliExpress, not £14**. Re-s
 
 | Qty | Part | Unit £ |
 |-----|------|--------|
-| ~300 g | PETG filament (printed shell, feet, flippers, head bar) | 6 |
-| 1 set | M2/M2.5 screws + heat-set brass inserts (~60 pcs) | 8 |
-| 4 | 3×8×4 mm flange bearings (un-driven servo hubs) | 3 |
-| 1 | Servo horns/brackets kit + wiring, heat-shrink | 8 |
+| ~300 g | PETG filament (printed shells, pockets, collars, trays) | 6 |
+| ~60 | M2 heat-set brass inserts (Ø3.2 printed holes, iron-set) | 4 |
+| ~60 | M2×6 button-head screws (collars, panels, feet, seams) | 4 |
+| 1 | Servo horns + brackets kit + wiring, JST, heat-shrink | 8 |
+| 1 | Velcro strap 12×200 mm (battery, no glue) | 2 |
 
 ## Total
 
@@ -76,8 +77,8 @@ First-pass pricing was wrong: STS3032 is **~£20 on AliExpress, not £14**. Re-s
 | Actuators | ~102 |
 | Electronics | ~48 |
 | Power | ~15 |
-| Structure | ~25 |
-| **Build total** | **≈ £190** (≈ £180 with MPU-6050 instead of BNO085) |
+| Structure | ~20 |
+| **Build total** | **≈ £185** (≈ £175 with MPU-6050 instead of BNO085) |
 
 ## The eyes — Imagineer logic
 
