@@ -1,0 +1,87 @@
+object,source_body_path,mesh_stl,world_pos_m
+seeed_bearing__configuration__22x16x4,/trunk_base,seeed_bearing__configuration__22x16x4,0.0060 0.0175 0.1150
+right_shell,/trunk_base,right_shell,0.0040 -0.0005 0.1025
+banana_pcb_locker,/trunk_base,banana_pcb_locker,0.0042 0.0000 0.1025
+trunk_base,/trunk_base,trunk_base,0.0040 0.0000 0.1025
+xl330,/trunk_base,xl330,0.0060 0.0175 0.1315
+power_support,/trunk_base,power_support,0.0040 0.0000 0.1025
+np_f970,/trunk_base,np_f970,-0.0360 0.0000 0.1161
+xl330.001,/trunk_base,xl330,0.0060 -0.0175 0.1315
+left_shell,/trunk_base,left_shell,0.0040 0.0000 0.1024
+seeed_bearing__configuration__22x16x4.001,/trunk_base,seeed_bearing__configuration__22x16x4,0.0060 -0.0175 0.1150
+yaw2roll,/trunk_base/yaw2roll,yaw2roll,0.0040 -0.0000 0.1025
+xl330.002,/trunk_base/yaw2roll,xl330,0.0060 0.0175 0.1025
+seeed_bearing__configuration__22x16x4.002,/trunk_base/yaw2roll,seeed_bearing__configuration__22x16x4,0.0225 0.0175 0.1025
+bearing_roll,/trunk_base/yaw2roll,bearing_roll,0.0040 -0.0000 0.1025
+seeed_bearing__configuration__22x16x4.003,/trunk_base/yaw2roll/hip_l,seeed_bearing__configuration__22x16x4,0.0040 0.0385 0.1025
+hip_l,/trunk_base/yaw2roll/hip_l,hip_l,0.0040 -0.0000 0.1025
+upper_leg_left,/trunk_base/yaw2roll/hip_l/upper_leg_left,upper_leg_left,0.0040 -0.0000 0.1025
+xl330.003,/trunk_base/yaw2roll/hip_l/upper_leg_left,xl330,-0.0318 0.0550 0.0805
+upper_leg_rigidity_plate,/trunk_base/yaw2roll/hip_l/upper_leg_left,upper_leg_rigidity_plate,0.0040 -0.0000 0.1025
+seeed_bearing__configuration__22x16x4.004,/trunk_base/yaw2roll/hip_l/upper_leg_left,seeed_bearing__configuration__22x16x4,-0.0318 0.0385 0.0805
+xl330.004,/trunk_base/yaw2roll/hip_l/upper_leg_left,xl330,0.0040 0.0550 0.1025
+leg,/trunk_base/yaw2roll/hip_l/upper_leg_left/leg,leg,-0.0098 -0.0000 0.0447
+xl330.005,/trunk_base/yaw2roll/hip_l/upper_leg_left/leg,xl330,-0.0318 0.0500 0.0385
+sole_left,/trunk_base/yaw2roll/hip_l/upper_leg_left/leg/ankle_left,sole_left,-0.0098 -0.0002 0.0447
+foot_left,/trunk_base/yaw2roll/hip_l/upper_leg_left/leg/ankle_left,foot_left,-0.0098 -0.0002 0.0447
+seeed_bearing__configuration_default,/trunk_base/yaw2roll/hip_l/upper_leg_left/leg/ankle_left,seeed_bearing__configuration_default,-0.0318 0.0323 0.0385
+ankle_left,/trunk_base/yaw2roll/hip_l/upper_leg_left/leg/ankle_left,ankle_left,-0.0098 -0.0002 0.0447
+neck,/trunk_base/neck,neck,0.0040 -0.0135 0.1024
+xl330.006,/trunk_base/neck,xl330,0.0260 -0.0000 0.1524
+xl330.007,/trunk_base/neck,xl330,0.0260 0.0000 0.2024
+neck.001,/trunk_base/neck,neck,0.0040 0.0115 0.1024
+neck_pitch,/trunk_base/neck/neck_pitch,neck_pitch,0.0260 0.0000 0.2312
+seeed_bearing__configuration__22x16x4.005,/trunk_base/neck/neck_pitch,seeed_bearing__configuration__22x16x4,0.0260 0.0000 0.2232
+yaw_roll_motion,/trunk_base/neck/neck_pitch/yaw_roll_motion,yaw_roll_motion,0.0260 0.0000 0.2311
+xl330.008,/trunk_base/neck/neck_pitch/yaw_roll_motion,xl330,0.0260 0.0000 0.2356
+seeed_bearing__configuration__22x16x4.006,/trunk_base/neck/neck_pitch/yaw_roll_motion,seeed_bearing__configuration__22x16x4,0.0100 0.0000 0.2356
+seeed_bearing__configuration__22x16x4.007,/trunk_base/neck/neck_pitch/yaw_roll_motion,seeed_bearing__configuration__22x16x4,0.0440 0.0000 0.2356
+lens,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,lens,0.0636 -0.0001 0.2511
+face_part,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,face_part,0.0259 -0.0001 0.2311
+xl330.009,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,xl330,0.0261 0.0255 0.2386
+jaw_soft,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,jaw_soft,0.0261 0.0000 0.2310
+motor_support,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,motor_support,0.0261 0.0000 0.2311
+top_head_shell,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,top_head_shell,0.0261 0.0000 0.2311
+xl330.010,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,xl330,-0.0064 0.0000 0.2356
+seeed_bearing__configuration_default.001,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,seeed_bearing__configuration_default,0.0261 -0.0400 0.2388
+elec_rpi_robot_hat_pcb,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,elec_rpi_robot_hat_pcb,0.0600 0.0290 0.2626
+soft_mouth_top,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,soft_mouth_top,0.0262 0.0000 0.2314
+noenoeil,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,noenoeil,0.0259 -0.0001 0.2311
+jaw,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,jaw,0.0261 0.0000 0.2311
+bottom_head_shell,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,bottom_head_shell,0.0261 0.0000 0.2313
+m12_lens_holder,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,m12_lens_holder,0.0637 -0.0001 0.2511
+pcb__raspberry_pi_zero_2_w,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,pcb__raspberry_pi_zero_2_w,0.0681 -0.0000 0.2510
+speaker,/trunk_base/neck/neck_pitch/yaw_roll_motion/jaw_soft,speaker,-0.0179 -0.0168 0.2456
+yaw2roll.001,/trunk_base/bearing_roll,yaw2roll,0.0040 -0.0350 0.1025
+xl330.011,/trunk_base/bearing_roll,xl330,0.0060 -0.0175 0.1025
+bearing_roll.001,/trunk_base/bearing_roll,bearing_roll,0.0040 -0.0350 0.1025
+seeed_bearing__configuration__22x16x4.008,/trunk_base/bearing_roll,seeed_bearing__configuration__22x16x4,0.0225 -0.0175 0.1025
+hip_l.001,/trunk_base/bearing_roll/hip_l_2,hip_l,0.0040 0.0000 0.1025
+seeed_bearing__configuration__22x16x4.009,/trunk_base/bearing_roll/hip_l_2,seeed_bearing__configuration__22x16x4,0.0040 -0.0425 0.1025
+xl330.012,/trunk_base/bearing_roll/hip_l_2/upper_leg_right,xl330,-0.0318 -0.0550 0.0805
+seeed_bearing__configuration__22x16x4.010,/trunk_base/bearing_roll/hip_l_2/upper_leg_right,seeed_bearing__configuration__22x16x4,-0.0318 -0.0425 0.0805
+upper_leg_rigidity_plate.001,/trunk_base/bearing_roll/hip_l_2/upper_leg_right,upper_leg_rigidity_plate,0.0040 -0.0860 0.1025
+upper_leg_right,/trunk_base/bearing_roll/hip_l_2/upper_leg_right,upper_leg_right,0.0040 0.0000 0.1025
+xl330.013,/trunk_base/bearing_roll/hip_l_2/upper_leg_right,xl330,0.0040 -0.0550 0.1025
+xl330.014,/trunk_base/bearing_roll/hip_l_2/upper_leg_right/leg_2,xl330,-0.0318 -0.0500 0.0385
+leg.001,/trunk_base/bearing_roll/hip_l_2/upper_leg_right/leg_2,leg,-0.0538 0.0000 0.0447
+ankle_right,/trunk_base/bearing_roll/hip_l_2/upper_leg_right/leg_2/ankle_right,ankle_right,-0.0098 0.0002 0.0447
+sole_right,/trunk_base/bearing_roll/hip_l_2/upper_leg_right/leg_2/ankle_right,sole_right,-0.0098 0.0002 0.0447
+seeed_bearing__configuration_default.002,/trunk_base/bearing_roll/hip_l_2/upper_leg_right/leg_2/ankle_right,seeed_bearing__configuration_default,-0.0318 -0.0353 0.0385
+foot_right,/trunk_base/bearing_roll/hip_l_2/upper_leg_right/leg_2/ankle_right,foot_right,-0.0098 0.0002 0.0447
+
+JOINT,world_pos_m,,range_rad
+left_hip_yaw,0.0060 0.0175 0.1150,,-0.4363323129985824 0.5235987755982988
+left_hip_roll,0.0225 0.0175 0.1025,,-0.3839724354386992 0.38397243543880577
+left_hip_pitch,0.0040 0.0425 0.1025,,-1.570796326794949 1.5707963267948442
+left_knee,-0.0318 0.0385 0.0805,,-1.5707963267948983 1.5707963267948948
+left_ankle,-0.0318 0.0645 0.0385,,-1.5707963267949063 1.5707963267948868
+neck_pitch,0.0260 0.0145 0.1524,,-1.5707963267948974 1.0471975511965967
+head_pitch,0.0260 0.0145 0.2024,,-1.5707963267948966 1.5707963267948966
+head_yaw,0.0260 0.0000 0.2211,,-2.9670597283903613 2.9670597283903595
+head_roll,0.0081 0.0000 0.2356,,-0.43633231299858327 0.4363323129985815
+right_hip_yaw,0.0060 -0.0175 0.1150,,-0.523598775598297 0.43633231299858416
+right_hip_roll,0.0225 -0.0175 0.1025,,-0.3839724354387507 0.38397243543875426
+right_hip_pitch,0.0040 -0.0425 0.1025,,-1.57079632679494 1.570796326794853
+right_knee,-0.0318 -0.0385 0.0805,,-1.5707963267949339 1.5707963267948593
+right_ankle,-0.0318 -0.0645 0.0385,,-1.5707963267949028 1.5707963267948903

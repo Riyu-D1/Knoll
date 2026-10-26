@@ -31,3 +31,19 @@ Original, open-hardware, DIY-buildable mascot robot — comparable capability cl
 
 ## Standing rules
 No invented specs/prices. Stall≠continuous always separated. GBP+dates+URLs on prices. Facts/estimates/assumptions labelled. Conflicts documented, not smoothed over.
+
+---
+
+## Phase 3 — Microduck reference baseline (design/microduck-reference-v0)
+
+After two rejected original directions (shell-v0 moss dome, droid-v0
+humanoid-ish), the user directed a **faithful part-for-part rebuild of the
+actual Microduck** as the new mechanical baseline: see
+`design/microduck-reference-v0/` (branch `design/microduck-reference-v0`).
+
+Corrected facts from the assembled official model: **14 actuated joints**
+(5/leg + 4 neck/head), **no actuated arms** (flipper "hands" are fixed
+shell parts; self-recovery uses legs + 4-DOF head + shell contact), beak
+static in the RL export. The reference is Pollen Robotics' design under
+Apache-2.0 files / protected trade dress — see THIRD-PARTY-NOTICES.md.
+Knoll Mk1 must diverge visibly from it before release.
