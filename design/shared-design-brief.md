@@ -47,3 +47,12 @@ shell parts; self-recovery uses legs + 4-DOF head + shell contact), beak
 static in the RL export. The reference is Pollen Robotics' design under
 Apache-2.0 files / protected trade dress — see THIRD-PARTY-NOTICES.md.
 Knoll Mk1 must diverge visibly from it before release.
+
+## Phase 4 — Knoll v1 (design/knoll-v1)
+
+First true derivative: Microduck skeleton + Knoll-original BDX-style
+head (dome/visor/twin eyes/antenna/ear pods, parametric in
+build_knoll_v1.py) + cheap-servo proxies at the XL330 envelope.
+Height unchanged (≤277 mm), 14 DOF, all internals inside new dome.
+Candidate servo swap: XL330 clones ~£12-15 → ~£200/set (see
+design/knoll-v1/DESIGN-REVIEW.md §3). Bill/beak removed.
