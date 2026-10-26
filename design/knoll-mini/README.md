@@ -16,18 +16,25 @@ slab head whose two lamp-eyes double as the robot's sensors.
 
 | Path | Contents |
 |------|----------|
-| `build_knoll_mini.py` | Fully parametric generator — Blender 4.x headless, one command rebuilds everything |
-| `knoll-mini.blend` | Editable model; collections `LEG_L/R`, `TRUNK`, `ARMS`, `NECK`, `HEAD`, `COMPONENTS`, `SLOTS` |
-| `img/` | hero, front, side, rear, head-detail, internals renders |
-| `parts/` | 152 STLs — the full printable kit: pockets, collars, shells, trays, bezels |
-| `BOM.md` | Component-by-component cost (~£250) + the engineering trade-offs |
-| `DESIGN-REVIEW.md` | Architecture, torque/mass budget, eye-sensor rationale, open risks |
+| `build_knoll_mini.py` | Parametric generator — Blender 4.x headless, rebuilds renders + preview STLs |
+| `knoll-mini.blend` | Editable model; collections `LEG_L/R`, `TRUNK`, `ARMS`, `NECK`, `HEAD`, `COMPONENTS`, `SLOTS`, `HARDWARE` |
+| **`cad/`** | **Production CAD** — `build_kit.py` (FreeCAD parametric source) → `knoll-mini.FCStd` + `knoll-mini.step` + 76 solid STLs with real holes/fillets |
+| `img/` | hero, front, side, rear, head-detail, servo-station, internals renders |
+| `parts/` | 152 preview STLs from the Blender pass |
+| `cad/parts/` | **76 production STLs** (use these) — pockets/collars as single fused solids |
+| `BOM.md` | Component cost + servo config decision (~£185) |
+| `DESIGN-REVIEW.md` | Architecture, torque budget, eye-sensor rationale, open risks |
+| `ASSEMBLY.md` | Print settings, insert map, step-by-step build, QC checklist |
+| `WIRING.md` | Servo daisy-chain, power tree, signal routes, strain relief |
 
 ## Rebuild
 
 ```bash
-blender --background --python build_knoll_mini.py -- --out .        # full
-blender --background --python build_knoll_mini.py -- --out . --quick  # hero only
+# production CAD (solid STLs + STEP + FCStd)
+KNOLL_OUT=./cad freecadcmd cad/build_kit.py
+
+# preview model + renders
+blender --background --python build_knoll_mini.py -- --out .
 ```
 
 Every dimension is a named constant at the top of the script (`SV_LEG`, `FEMUR`, `TRUNK`,
