@@ -137,9 +137,9 @@ bpy.context.scene.world = world
 world.use_nodes = True
 bg = next(n for n in world.node_tree.nodes if n.type == "BACKGROUND")
 bg.inputs[0].default_value = (0.02, 0.02, 0.025, 1)
-bg.inputs[1].default_value = 0.3
+bg.inputs[1].default_value = 0.25
 
-for loc, energy in [((0.4, -0.4, 0.5), 90), ((-0.4, 0.35, 0.4), 55), ((0.0, 0.3, 0.15), 30)]:
+for loc, energy in [((0.4, -0.4, 0.5), 45), ((-0.4, 0.35, 0.4), 28), ((0.0, 0.3, 0.15), 15)]:
     d = bpy.data.lights.new("a", "AREA")
     d.energy = energy
     d.shape = "DISK"
