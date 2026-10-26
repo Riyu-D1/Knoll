@@ -1,6 +1,8 @@
 # Actuator Study — Knoll Mk1
 
-**Date:** 2026-10-26 · **Status:** Selection complete, supported by calculations. All prices GBP dated 2026-10-26; full evidence in `engineering/notes-actuators.md` and `research/sources.md`.
+**Date:** 2026-10-26 · **Status:** Selection complete for the 10-DOF platform — **STALE pending v1.1 redirect re-validation.** All prices GBP dated 2026-10-26; full evidence in `engineering/notes-actuators.md` and `research/sources.md`.
+
+> **v1.1 redirect (2026-10-29):** architecture is now 15 DOF (+4 arm, +1 neck) and mass estimate ~1.4 kg — the entire torque analysis below assumed ≤1.15 kg. Knee (binding joint at ~2× margin) likely goes under water at the new mass; arm servos are low-torque candidates for a smaller class (STS3032/XL330 ~30 g). **Required re-work:** re-run load cases at new mass, decide arm/neck servo class, confirm leg servo upgrade (C018-class) vs mass trim. Do not purchase against this study until re-validated.
 
 ---
 

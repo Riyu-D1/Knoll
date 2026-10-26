@@ -1,6 +1,6 @@
 # Mascot Concepts — Original Character Design
 
-**Date:** 2026-10-26
+**Date:** 2026-10-26 · **v1.1 redirect:** 2026-10-29 — direction changed to **agile biped-droid** (torso + actuated head + 2-DOF arms), name "Knoll" retained, moss/dome cues dropped. New concepts: `design/renders/droid-v0/` (Variant A recommended). The dome-creature concept below is kept for record — it was scored soundly but rejected at visual review as reading "static, not agile".
 **Status:** Concept-stage. Proportions are CAD-ready *starting points*, not verified geometry. Any renders produced are concept visualisations only.
 
 ---

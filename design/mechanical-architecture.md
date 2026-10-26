@@ -1,6 +1,8 @@
 # Mechanical Architecture — Knoll Mk1
 
-**Date:** 2026-10-26 · **Status:** Preliminary dimensioned layout. All dimensions are CAD-starting-point values; interfaces, clearances and assembly constraints are NOT yet CAD-verified. Servo-dependent values marked ⟳ pending `engineering/notes-actuators.md`.
+**Date:** 2026-10-26 · **Status:** Preliminary dimensioned layout — **v1.1 redirect overlay (2026-10-29): 10-DOF dome platform → 15-DOF agile biped-droid.** All dimensions are CAD-starting-point values; interfaces, clearances and assembly constraints are NOT yet CAD-verified.
+
+> **v1.1 revision:** user-approved redirect after shell-v0 review. New architecture: same 5-DOF legs (joint heights unchanged) + **2-DOF arms** (shoulder pitch+roll ×2 = +4 servos) + **1-DOF neck pitch** (+1 servo) = **15 servos**. Torso (not dome) houses battery/electronics ~95×82×105 mm; small head ~74×70×64 on neck; total height ~300 mm. Mass estimate rises to ~1.4 kg — **breaches the 1.15 kg knee gate**; mitigations: lighter arm/neck servo class (STS3032/XL330 ~30 g), C018-class leg upgrade, mass trim. Recovery now includes arm push-assist. Leg joint table (§3) unchanged; new arm/neck joints are low-torque (≤0.1 N·m est, unvalidated). Visual proxies: `design/renders/droid-v0/`.
 
 ---
 

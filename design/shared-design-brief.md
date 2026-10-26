@@ -1,6 +1,8 @@
 # Shared Design Brief — Knoll Mk1
 
-**Version:** 1.0 — 2026-10-26 — LOCKED (post-research). Supersedes v0.1 assumptions where research forced changes. Changes vs v0.1 marked ⓒ.
+**Version:** 1.1 — 2026-10-29 — **REDIRECT (user-approved, pending full re-validation).** Supersedes v1.0 concept/DOF rows below. v1.0 text kept for record; see revision note.
+
+> **v1.1 revision note:** after the shell-v0 visual review the concept direction changed from *dome-shelled moss creature* to **agile biped-droid archetype** (compact torso + small actuated head + 2-DOF arms), Microduck-category but independently designed. DOF 10 → **15** (5/leg + 2/arm pitch+roll + 1 neck pitch). Direct consequences: mass estimate ~1.09 → ~1.4 kg — **breaches the 1.15 kg knee-torque gate** (mitigations: lighter arm/neck servo class, C018 legs, mass trim); height ~27 → ~30 cm; cost +~£100–150. Actuator study, mass budget and cost model require re-validation before build. Keeps name "Knoll" only — no moss/dome cues. Everything else in v1.0 (electrical architecture, control stack, staged recovery, licensing) carries forward; recovery now includes arm push-assist in scripted keyframes.
 
 ## Mission
 
