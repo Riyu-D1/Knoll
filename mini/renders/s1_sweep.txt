@@ -1,0 +1,27 @@
+# S1 R1 sweep, per-joint, --step 20
+left_hip_yaw     swept -25..+30 deg: PASS
+R1 OVERALL: PASS
+right_hip_yaw    swept -30..+25 deg: PASS
+R1 OVERALL: PASS
+left_hip_roll    swept -22..+22 deg: PASS
+R1 OVERALL: PASS
+right_hip_roll   swept -22..+22 deg: PASS
+R1 OVERALL: PASS
+left_hip_pitch   swept -45..+45 deg: PASS
+R1 OVERALL: PASS
+right_hip_pitch  swept -45..+45 deg: PASS
+R1 OVERALL: PASS
+left_knee        swept -45..+45 deg: FAIL
+    at  -45.0 deg  scs0009:left_ankle|leg  <->  scs0009:left_knee|upper_leg_left  depth 3.12 mm
+    at  +35.0 deg  scs0009:left_ankle|leg  <->  scs0009:left_knee|upper_leg_left  depth 2.73 mm
+    at  +45.0 deg  scs0009:left_ankle|leg  <->  scs0009:left_knee|upper_leg_left  depth 6.88 mm
+R1 OVERALL: FAIL
+right_knee       swept -45..+45 deg: FAIL
+    at  -45.0 deg  scs0009:right_ankle|leg_2  <->  scs0009:right_knee|upper_leg_right  depth 3.12 mm
+    at  +35.0 deg  scs0009:right_ankle|leg_2  <->  scs0009:right_knee|upper_leg_right  depth 2.73 mm
+    at  +45.0 deg  scs0009:right_ankle|leg_2  <->  scs0009:right_knee|upper_leg_right  depth 6.88 mm
+R1 OVERALL: FAIL
+left_ankle       swept -45..+45 deg: PASS
+R1 OVERALL: PASS
+right_ankle      swept -45..+45 deg: PASS
+R1 OVERALL: PASS

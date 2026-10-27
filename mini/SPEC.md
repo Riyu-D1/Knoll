@@ -240,3 +240,4 @@ Changes: uniformly scaled by 0.72; servo pockets/cradles re-cut for Feetech SCS0
 |---|---|---|---|---|
 | 2026-10-27 | prep | S=0.72, rolls + stretches of 5.3 | C2 PASS, height 192.6 | check_clearance C2 PASS |
 | 2026-10-27 | 1 | SERVO_ROLL_DEG ankles kept 0 (trialled 90/180/270, none usable) | 90: right_ankle vs right_hip_roll servo at knee -45; 180: passes knees but the case envelope reaches z 3.27, ~4 mm below the sole bottom (physically impossible); 270: left_ankle vs left_hip_roll servo at knee +45. Roll 0 has the smallest ankle C3 (the verified recipe) | see HANDOFF S1 |
+| 2026-10-27 | 1 | Knee rolls also trialled 0/90/180/270 for the ankle↔knee case clash | none clears it (90 kept — upstream-verified for knee↔hip_pitch). Usable knee range −33..+21 deg; documented as human decision in HANDOFF S1 | sweep_check left/right_knee; direct env depth test |

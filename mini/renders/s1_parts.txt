@@ -5,7 +5,7 @@
 PASS ankle_left                 watertight=True ext=[37.4 26.3 18.4] wall_p10=1.28mm
 PASS ankle_right                watertight=True ext=[40.4 26.3 18.4] wall_p10=1.29mm
 PASS banana_pcb_locker          watertight=True ext=[38.9  2.7  4.8] wall_p10=1.08mm
-FAIL bearing_roll               watertight=True ext=[17.2 30.4 33.4] wall_p10=0.63mm  <-- thin
+PASS bearing_roll               watertight=True ext=[17.2 23.9 33.4] wall_p10=2.00mm
 FAIL bottom_head_shell          watertight=True ext=[66.1 84.1 14.5] wall_p10=0.90mm  <-- thin
 PASS face_part                  watertight=True ext=[63.1  9.  32.1] wall_p10=0.94mm
 PASS foot_left                  watertight=True ext=[28.9 38.9 12.2] wall_p10=1.26mm
@@ -30,6 +30,6 @@ PASS trunk_base                 watertight=True ext=[42.  33.1 31.7] wall_p10=2.
 FAIL upper_leg_left             watertight=True ext=[31.3 34.3 47.5] wall_p10=0.72mm  <-- thin
 FAIL upper_leg_right            watertight=True ext=[31.3 34.3 58.9] wall_p10=0.72mm  <-- thin
 FAIL upper_leg_rigidity_plate   watertight=True ext=[ 2.4 32.4 38.6] wall_p10=1.08mm  <-- thin
-FAIL yaw2roll                   watertight=True ext=[16.7 29.1 33.4] wall_p10=0.63mm  <-- thin
+PASS yaw2roll                   watertight=True ext=[16.7 22.6 33.4] wall_p10=2.00mm
 PASS yaw_roll_motion            watertight=True ext=[24.5 25.8 16.2] wall_p10=1.44mm
 OVERALL: FAIL
