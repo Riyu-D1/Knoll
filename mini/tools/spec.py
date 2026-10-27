@@ -113,9 +113,9 @@ ELECTRONICS = [   # masses are ESTIMATES (unverified); the STL is optional (mass
     ("jaw_soft", "elec_buck_5v", 2.0),
 ]
 # Parts authored directly in a body's frame (mm), treated as printed: (body, stl name in parts/current).
-EXTRA_PARTS = []          # e.g. ("neck", "neck_frame") after tools/merge_body_frame.py
+EXTRA_PARTS = [("neck", "neck_frame")]   # session 2: merge_body_frame.py --hull, replaces neck
 # Upstream printed parts no longer used (their STL moves to parts/attic/). Skipped by assembly + MJCF.
-REMOVED_PARTS = []        # e.g. "neck" once neck_frame replaces both neck plates
+REMOVED_PARTS = ["neck"]  # session 2: two tiny XL330 plates -> one SCS0009 bracket (neck_frame)
 PETG_DENSITY_G_CM3 = 1.27
 PRINT_FILL_FACTOR = 0.55   # 3 walls + 20 % infill, approx fraction of solid mass
 
