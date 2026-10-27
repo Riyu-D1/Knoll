@@ -1,0 +1,70 @@
+{
+ "S": 0.72,
+ "fails": [
+  {
+   "check": "C3",
+   "servo": "scs0009:left_hip_roll",
+   "part": "power_support",
+   "body": "trunk_base",
+   "depth": 8.85
+  },
+  {
+   "check": "C3",
+   "servo": "scs0009:left_ankle",
+   "part": "foot_left",
+   "body": "ankle_left",
+   "depth": 0.3
+  },
+  {
+   "check": "C3",
+   "servo": "scs0009:left_ankle",
+   "part": "ankle_left",
+   "body": "ankle_left",
+   "depth": 13.32
+  },
+  {
+   "check": "C3",
+   "servo": "scs0009:neck_pitch",
+   "part": "right_shell",
+   "body": "trunk_base",
+   "depth": 2.83
+  },
+  {
+   "check": "C3",
+   "servo": "scs0009:head_pitch",
+   "part": "neck_pitch",
+   "body": "neck_pitch",
+   "depth": 5.9
+  },
+  {
+   "check": "C3",
+   "servo": "scs0009:head_yaw",
+   "part": "motor_support",
+   "body": "jaw_soft",
+   "depth": 0.73
+  },
+  {
+   "check": "C3",
+   "servo": "scs0009:right_hip_roll",
+   "part": "power_support",
+   "body": "trunk_base",
+   "depth": 4.37
+  },
+  {
+   "check": "C3",
+   "servo": "scs0009:right_ankle",
+   "part": "ankle_right",
+   "body": "ankle_right",
+   "depth": 16.61
+  },
+  {
+   "check": "C3",
+   "servo": "scs0009:right_ankle",
+   "part": "foot_right",
+   "body": "ankle_right",
+   "depth": 0.3
+  }
+ ],
+ "height": 192.6,
+ "ok": false
+}

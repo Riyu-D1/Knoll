@@ -8,7 +8,7 @@
 
 | Asset | Licence | Rationale |
 |---|---|---|
-| Mechanical CAD, drawings, STL | **CERN-OHL-S v2** | Reciprocal open-hardware licence purpose-built for physical designs; forces derivatives of the *robot hardware* to stay open — our differentiation vs Microduck's closed HW |
+| Mechanical CAD, drawings, STL | **CERN-OHL-S v2** *(original Knoll designs only — see note below)* | Reciprocal open-hardware licence purpose-built for physical designs; forces derivatives of the *robot hardware* to stay open — our differentiation vs Microduck's closed HW |
 | PCB / electronics design files | **CERN-OHL-S v2** | Same reciprocal argument; KiCad project + gerbers published |
 | Firmware (MCU) + robot software | **Apache-2.0** | Permissive maximises adoption + contributions, matches the ecosystem norm (Microduck itself, onshape-to-robot, mjlab) |
 | Simulation + training code | **Apache-2.0** | Same reasoning; enables reuse in papers |
@@ -16,6 +16,8 @@
 | Docs, build guide, images | **CC-BY-SA-4.0** | Standard docs licence; reciprocal keeps translations/improvements shareable |
 | Character artwork, name, logo, "Knoll" mark | **CC-BY-SA-4.0 for art; name/logo retained as trademark (recommended)** | Keeps the *project's identity* protectable while art stays remixable; prevents clone products trading on our name |
 | Third-party components in BOM | their own terms | We re-distribute no vendor firmware/binaries except as licences permit |
+
+> **Exception:** hardware meshes derived from Microduck are CC BY-NC-SA 4.0. See mini/LICENSE-MESHES.md. The CERN-OHL-S / Apache-2.0 rows above apply to original Knoll designs and code only, never to the Microduck-derived meshes under `mini/parts/` (non-commercial, share-alike).
 
 **Permissive vs reciprocal trade-off:** Apache-2.0 for code maximises reuse (a company can build atop our stack → goodwill + contributions flow back through the community anyway). For *hardware*, CERN-OHL-S reciprocity is the point: anyone selling Knoll-derived designs must publish their changes — that is precisely the "open hardware equivalent" market position Microduck leaves open. Trademark retention on the name is how permissive projects (Arduino, Raspberry Pi) still protect their brand.
 

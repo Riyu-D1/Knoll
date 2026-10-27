@@ -54,3 +54,18 @@ Key decisions (full rationale in `decisions/architecture-decision-record.md`):
 5. **"Knoll" name** — working name; trademark check pending before release.
 
 *Independent community design inspired by the capabilities of small open RL bipeds. Not affiliated with Pollen Robotics or Hugging Face. No Microduck assets reused.*
+
+## Knoll Mini (work in progress)
+
+A ×0.72-scale (~19 cm) Microduck-derived mini built in `mini/` on branch `build/microduck-bdx-mini`:
+14 cheap Feetech SCS0009 servos replace the XL330s, joints/axes/kinematics unchanged, plus a new BDX-droid-style head.
+Fixed design contract and build log live in [`mini/SPEC.md`](mini/SPEC.md) and `mini/HANDOFF.md` — this is derivative work, unlike the original Knoll Mk1 above.
+
+```
+Original design and STL: Pollen Robotics / Microduck.
+STEP reconstruction, repairs, validation and CAD sheets: tianjin66 and project contributors.
+Source: https://github.com/tianjin66/microduck-step-3d-models-ai-stl
+Licence: CC BY-NC-SA 4.0 — https://creativecommons.org/licenses/by-nc-sa/4.0/
+Changes: uniformly scaled by 0.72; servo pockets/cradles re-cut for Feetech SCS0009; local stretches
+(see SPEC.md 5.3); bearing seats changed to 6700ZZ; original head replaced by a BDX-style head.
+```

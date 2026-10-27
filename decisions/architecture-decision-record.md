@@ -6,7 +6,7 @@
 
 ## 1. Decision
 
-Build **Knoll Mk1**: a ~27 cm, ~1.1 kg dome-shelled biped mascot — 10-DOF (5/leg, no ankle roll, no neck v1), Waveshare ST3020 serial servos on a direct 2S rail, RP2350 MCU (safety owner) + optional Pi Zero 2 W (policies), BNO085 IMU, MuJoCo+BAM+ONNX pipeline, fully open hardware (CERN-OHL-S), DIY cost ≈ £280–360 depending on sourcing.
+Build **Knoll Mk1**: a ~27 cm, ~1.1 kg dome-shelled biped mascot — 10-DOF (5/leg, no ankle roll, no neck v1), Waveshare ST3020 serial servos on a direct 2S rail, RP2350 MCU (safety owner) + optional Pi Zero 2 W (policies), BNO085 IMU, MuJoCo+BAM+ONNX pipeline, fully open hardware (CERN-OHL-S; hardware meshes derived from Microduck are CC BY-NC-SA 4.0 — see mini/LICENSE-MESHES.md), DIY cost ≈ £280–360 depending on sourcing.
 
 ## 2. Candidate architectures compared
 
@@ -60,7 +60,7 @@ A1 wins: it concentrates spend exactly where capability lives (servo torque + fe
 | D7 | Sim | MuJoCo + BAM + mjlab/CrossQ | both references converged; FRASA proves CPU-trainable recovery |
 | D8 | Camera/ToF | optional (provisions kept) | reference policies are proprioception-only; saves £24–45 and 0.5 W |
 | D9 | Shell | dome + fused head (Knoll) | scoring matrix in mascot-concepts.md; dome doubles as recovery-friendly bumper |
-| D10 | Licensing | CERN-OHL-S hw + Apache-2.0 sw + TM name | open-hardware differentiation is the product |
+| D10 | Licensing | CERN-OHL-S hw + Apache-2.0 sw + TM name (Microduck-derived meshes excepted: CC BY-NC-SA 4.0, mini/LICENSE-MESHES.md) | open-hardware differentiation is the product |
 
 ## 5. Trade-offs accepted (honest)
 
