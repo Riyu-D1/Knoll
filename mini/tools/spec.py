@@ -78,8 +78,11 @@ STRETCH = [   # pre-verified on 2026-10-27 with check_clearance.py: C2 (servo-se
 SERVO_ROLL_DEG = {   # pre-verified on 2026-10-27 (tools/search_layout.py)
     "left_knee": 90, "right_knee": 90,   # knee vs hip_pitch servo clash (-2.2 mm) removed
     "neck_pitch": 270,                   # neck_pitch vs head_pitch servo clash (-12.1 mm) removed
-    # session 1: ankle rolls all fail somewhere - 90: R knee vs hip_roll servo; 180: case pokes
-    # out below the foot (impossible); 270: L knee vs hip_roll servo. Keep 0 and limit knee range.
+    "left_ankle": 90, "right_ankle": 270,  # session 1 fix: mirrored pair clears ankle<->knee servo
+    #   case clash AND ankle<->hip_roll (verified: 0.00 mm max depth over knee -45..+45 both sides).
+    #   Same-sign 90/90 or 270/270 fail on the opposite side. 180: case pokes out below the sole.
+    #   Knee safe range: FULL -45..+45 PASS both sides after re-cutting leg/ankle/sole/foot for the
+    #   rotated envelopes (leg.stl is shared by bodies leg+leg_2 -> corridors cut via both T maps).
 
 }
 
