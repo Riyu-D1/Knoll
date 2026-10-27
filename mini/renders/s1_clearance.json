@@ -1,0 +1,28 @@
+{
+ "S": 0.72,
+ "fails": [
+  {
+   "check": "C3",
+   "servo": "scs0009:neck_pitch",
+   "part": "right_shell",
+   "body": "trunk_base",
+   "depth": 2.83
+  },
+  {
+   "check": "C3",
+   "servo": "scs0009:head_pitch",
+   "part": "neck_pitch",
+   "body": "neck_pitch",
+   "depth": 5.9
+  },
+  {
+   "check": "C3",
+   "servo": "scs0009:head_yaw",
+   "part": "motor_support",
+   "body": "jaw_soft",
+   "depth": 0.73
+  }
+ ],
+ "height": 192.6,
+ "ok": false
+}

@@ -78,6 +78,9 @@ STRETCH = [   # pre-verified on 2026-10-27 with check_clearance.py: C2 (servo-se
 SERVO_ROLL_DEG = {   # pre-verified on 2026-10-27 (tools/search_layout.py)
     "left_knee": 90, "right_knee": 90,   # knee vs hip_pitch servo clash (-2.2 mm) removed
     "neck_pitch": 270,                   # neck_pitch vs head_pitch servo clash (-12.1 mm) removed
+    # session 1: ankle rolls all fail somewhere - 90: R knee vs hip_roll servo; 180: case pokes
+    # out below the foot (impossible); 270: L knee vs hip_roll servo. Keep 0 and limit knee range.
+
 }
 
 HEAD_MODE = "microduck"   # session 3 switches this to "bdx" once the BDX head parts exist
