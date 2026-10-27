@@ -7,14 +7,19 @@ every component, cheap servos welcome, eyes used functionally — "think like a 
 
 ## 2. What got built
 
-A fully parametric Blender model at **~162 mm tall**: same family architecture as Microduck —
-5-DOF legs, static flipper shells, actuated neck, big head — but scaled-down around parts that
-actually exist at this size, and 100% Knoll-generated geometry (no Pollen meshes — this is the
-first fully-original geometry pass).
+A fully parametric Blender model at **~165 mm tall**: same family architecture as Microduck —
+serial-chain legs, static flipper shells, actuated neck, big head — but scaled-down around parts
+that actually exist at this size, and 100% Knoll-generated geometry (no Pollen meshes — this is
+the first fully-original geometry pass).
 
 ```
-feet+ankle 22 mm → shin 22 → knee → femur 24 → hip 68 → trunk 34 → neck 25 → head 24 = ~162 mm
+foot 7 → leg chain (pitch+knee pockets staggered) → hip block ~42 → trunk 34 → neck ~31 →
+head 24 = ~165 mm
 ```
+
+The legs are a true serial chain, not a rigid frame: hip block (yaw output + roll body) →
+femur (pitch) → shin (knee) → passive foot. Each member holds one servo body and is driven
+by the previous joint's horn — the ankle became a passive compliant foot (saved a servo).
 
 The big-head/small-body proportion is deliberate: at 16 cm the head *must* stay 68 mm wide to
 house the eye sensor pods, and the oversized face is what makes it read as a mascot droid rather
@@ -25,7 +30,7 @@ than a scaled-down humanoid — same trick BDX uses.
 First pricing pass was wrong (STS3032 ≈ £20 street, not £14). Re-surveyed the real market —
 see `BOM.md` for the full table and all four configs. Chosen:
 
-**12× Feetech SCS0009 / Waveshare SC09 — ~£105 total.** Serial TTL bus, magnetic-encoder
+**9× Feetech SCS0009 / Waveshare SC09 — ~£79 total.** Serial TTL bus, magnetic-encoder
 feedback (position, load, temp, voltage) on every joint — the Microduck-class control path
 stays open — at £8.75/servo. 13 g each keeps total mass ~250 g, which is what makes the
 0.22 N·m stall torque adequate at 16 cm scale (knee worst case ~0.11 N·m).
@@ -56,8 +61,9 @@ speaker grille. Antenna stays thin wire (BDX-faithful).
   panel + vents front; power button + USB rear. Speaker behind the panel.
 - **Head (68×38×24):** face plate + eye rings/sensors front; `SLOT_HEAD_ELEC` interior tray for
   ring wiring + camera/ToF flex + mic.
-- **Neck (25 mm):** NPITCH horizontal in trunk ceiling; NYAW servo body *is* the exposed column —
-  BDX-faithful visible mechanics; wiring channel behind.
+- **Neck (~31 mm):** NPITCH servo block stands on the trunk top — the exposed mechanical
+  column (BDX-faithful visible actuator); NECK_ARM horn link drives the head base;
+  NECK_CABLE conduit routes the flex run up the back.
 - **Flippers:** static shells + orange tips — recovery bumpers, same job as Microduck's
   (which were never actuated).
 - **Feet:** 44×28 mm at ±16.5 mm hips — ~5 mm clear stance.
@@ -69,13 +75,15 @@ Breakdown + rejected alternates in `BOM.md`.
 
 ## 7. What this is NOT yet (build-gate list)
 
-- Mounting detail: the STLs are shells + proxies — screw bosses, insert pockets and bracket
-  holes are marked by slots, not final-cut. Next pass adds real fastener geometry.
+- ~~Mounting detail~~ — done: every part is a fused manifold solid with real pockets,
+  collars, insert bosses and bored holes; `verify_parts.py` PASSes (44 solids, component
+  clearance, part interference, 65/65 insert seats).
 - Knee torque: 0.22 N·m stall vs ~0.11 N·m working — fine bent; marginal straight. Needs the
   gait assumption held in practice.
-- Recovery: flipper bumpers + rounded head give the contact geometry; whether 12-DOF + 250 g
+- Recovery: flipper bumpers + rounded head give the contact geometry; whether 9-DOF + 250 g
   self-rights like Microduck is a sim question, not yet answered.
-- Fit-check: print the `parts/` set first as a mock-up before committing to a full build.
+- Fit-check: print a servo station + hip block first as a mock-up before committing to a
+  full build. Digital verification ≠ physical fit — tolerances still need a test print.
 
 ## 8. Decisions for the user
 

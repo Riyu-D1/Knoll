@@ -1,6 +1,6 @@
 # Knoll Mini — Bill of Materials & Cost
 
-**Locked config: B — ~16 cm, ~250 g, ~£200 all-in** (12× SCS0009 serial servos)
+**Locked config: B — ~16.5 cm, ~230 g, ~£160 all-in** (9× SCS0009 serial servos)
 vs Microduck's ~25 cm / ~800 g / ~£650+ (genuine XL330s).
 All prices GBP, real AliExpress/supplier street prices (Nov 2025).
 
@@ -21,7 +21,7 @@ First-pass pricing was wrong: STS3032 is **~£20 on AliExpress, not £14**. Re-s
 
 **A. Stay 19 cm, split servos** — 4× STS3032 (hip pitch + knees, the load joints) + 8× SCS0009 (hip yaw/roll, ankles, neck): bill **~£152**. Still pricey for marginal gain.
 
-**B. Shrink to ~15–16 cm — all SCS0009** — 12× ~£8.5 ≈ **£105**. Mass drops to ~230 g → knee worst-case ~0.10 N·m vs 0.22 stall: workable for gentle walking. Smallest and (honestly) the *most* BDX in proportion — bigger head-to-body ratio = cuter.
+**B. Shrink to ~15–16 cm — all SCS0009** — 9× ~£8.5 ≈ **£77**. Mass drops to ~230 g → knee worst-case ~0.10 N·m vs 0.22 stall: workable for gentle walking. Smallest and (honestly) the *most* BDX in proportion — bigger head-to-body ratio = cuter.
 
 **C. Grow to ~24–25 cm — LX-15D / SCS15 legs** — 10× ~£8.5–12 + 2× SCS0009 ≈ **£105–140**. Real torque margin (8× headroom), easy walking + recovery — but back at Microduck height, not pocket.
 
@@ -33,7 +33,7 @@ First-pass pricing was wrong: STS3032 is **~£20 on AliExpress, not £14**. Re-s
 
 | Qty | Part | Role | Unit £ | Sub £ |
 |-----|------|------|--------|-------|
-| 12 | Feetech SCS0009 / Waveshare SC09 (serial TTL, 13 g, 23×12×25 mm, 0.22 N·m stall, full feedback) | All joints: 5/leg + neck pitch + yaw | 8.5 | ~102 |
+| 9 | Feetech SCS0009 / Waveshare SC09 (serial TTL, 13 g, 23×12×25 mm, 0.22 N·m stall, full feedback) | 4/leg (hip yaw, hip roll, hip pitch, knee) + neck pitch | 8.5 | ~77 |
 
 **Flag:** rated torque 0.07 N·m means knees run warm; gait must stay flexed. If it proves weak in practice, Option A (4× STS3032 on load joints, +£40) drops into the same footprint — SCS0009 and STS3032 are dimensioned within 3 mm of each other.
 
@@ -65,8 +65,8 @@ First-pass pricing was wrong: STS3032 is **~£20 on AliExpress, not £14**. Re-s
 | Qty | Part | Unit £ |
 |-----|------|--------|
 | ~300 g | PETG filament (printed shells, pockets, collars, trays) | 6 |
-| ~60 | M2 heat-set brass inserts (Ø3.2 printed holes, iron-set) | 4 |
-| ~60 | M2×6 button-head screws (collars, panels, feet, seams) | 4 |
+| ~65 | M2 heat-set brass inserts (Ø3.2 printed holes, iron-set) | 4 |
+| ~65 | M2×6 button-head screws (collars, panels, feet, seams) | 4 |
 | 1 | Servo horns + brackets kit + wiring, JST, heat-shrink | 8 |
 | 1 | Velcro strap 12×200 mm (battery, no glue) | 2 |
 
@@ -74,11 +74,11 @@ First-pass pricing was wrong: STS3032 is **~£20 on AliExpress, not £14**. Re-s
 
 | Scope | £ |
 |-------|---|
-| Actuators | ~102 |
+| Actuators | ~77 |
 | Electronics | ~48 |
 | Power | ~15 |
 | Structure | ~20 |
-| **Build total** | **≈ £185** (≈ £175 with MPU-6050 instead of BNO085) |
+| **Build total** | **≈ £160** (≈ £150 with MPU-6050 instead of BNO085) |
 
 ## The eyes — Imagineer logic
 
@@ -90,6 +90,8 @@ Each lamp-eye is a **light + sensor pod**:
 
 That's the Disney BDX trick: the face IS the sensor pod, one cosmetic surface doing three jobs (expression, depth sensing, vision) at zero extra volume — which is how an 84 mm-wide head carries a camera, a ranger, a mic hole, and a speaker grille without growing.
 
-## What 12 DOF costs vs Microduck's 14
+## What 9 DOF costs vs Microduck's 14
 
-Dropped: head_pitch + head_roll (2 servos, –£18, –40 g) — kept neck pitch + yaw, which is what reads as "alive". Arms stay static flippers (as on Microduck — they were never actuated there either).
+Dropped: neck yaw, head pitch/roll, and both ankle servos (5 servos, –£44, –65 g) — kept
+neck pitch (the head nod is what reads as "alive") and a passive compliant foot. Arms stay
+static flippers (as on Microduck — they were never actuated there either).
