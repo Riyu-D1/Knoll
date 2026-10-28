@@ -1,0 +1,15 @@
+left_hip_yaw     swept -25..+30 deg: PASS
+left_hip_roll    swept -22..+22 deg: PASS
+left_hip_pitch   swept -45..+45 deg: PASS
+left_knee        swept -45..+45 deg: PASS
+left_ankle       swept -45..+45 deg: PASS
+right_hip_yaw    swept -30..+25 deg: PASS
+right_hip_roll   swept -22..+22 deg: PASS
+right_hip_pitch  swept -45..+45 deg: PASS
+right_knee       swept -45..+45 deg: PASS
+right_ankle      swept -45..+45 deg: PASS
+neck_pitch       swept -45..+45 deg: PASS
+head_pitch       swept -45..+45 deg: PASS
+head_yaw         swept -120..+120 deg: PASS
+head_roll        swept -25..+25 deg: PASS
+R1 OVERALL: PASS
