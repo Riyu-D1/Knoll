@@ -43,6 +43,9 @@ VIEWS = {  # name: (elev, azim, zoom_target, zoom_radius or None)
     "side":          (6, 90, "all", None),
     "three_quarter": (18, -142, "all", None),
     "head":          (10, 168, "jaw_soft", None),
+    "back":          (14, -25, "jaw_soft", None),
+    "servo_side":    (4, -90, "jaw_soft", None),
+    "head_low":      (-28, 160, "jaw_soft", None),
 }
 allv = np.vstack([i.mesh_obj.vertices for i in items])
 c_all = (allv.max(0) + allv.min(0)) / 2

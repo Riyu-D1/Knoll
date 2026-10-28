@@ -135,7 +135,7 @@
             <geom type="mesh" class="visual" pos="0.01296 0 0.01044" quat="0.707107 0 -0.707107 -0" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
             <body name="jaw_soft" pos="-0.012888 0 0.01044" quat="0.707107 0 -0.707107 -0">
               <joint axis="0 0 1" name="head_roll" type="hinge" range="-0.436332 0.436332" class="chosen_actuator" />
-              <inertial pos="0.00331577 0.000864338 -0.0233828" mass="0.0705841" fullinertia="6.21867e-05 4.92553e-05 2.90534e-05 -1.22565e-07 1.27384e-06 8.11185e-07" />
+              <inertial pos="0.00331577 0.000864338 -0.0233828" mass="0.0728043" fullinertia="6.41427e-05 5.08046e-05 2.99673e-05 -1.2642e-07 1.31391e-06 8.367e-07" />
               <geom type="mesh" class="visual" pos="-0.00324 -6.5792e-05 -0.012816" quat="0.5 0.5 0.5 0.5" mesh="face_part" material="face_part_material" />
               <geom type="mesh" class="visual" pos="-0.003312 0 -0.0129597" quat="0.5 0.5 0.5 0.5" mesh="jaw_soft" material="jaw_soft_material" />
               <geom type="mesh" class="visual" pos="-0.00324 -0 -0.01296" quat="0.5 0.5 0.5 0.5" mesh="motor_support" material="motor_support_material" />

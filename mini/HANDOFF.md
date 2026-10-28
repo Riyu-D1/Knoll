@@ -4,32 +4,32 @@ Every session reads this first and rewrites the "Current state" and "Next sessio
 Keep it under 150 lines. Paste the real check output (trimmed to the summary lines).
 
 ## Current state
-- Branch: `build/microduck-bdx-mini`. Last finished session: `6` (BOM + wiring + assembly +
-  print list docs; README updated). Nothing was purchased.
-- S = 0.72. Height: `192.6 mm` (cap 200). Sim mass `428.9 g`. Head: original Microduck ×0.72,
-  fixed jaw, 14 SCS0009 servos. All final — do not re-open.
+- Branch: `build/microduck-bdx-mini`. Last finished session: `7` (head enclosure — head_roll
+  fully enclosed, head_yaw partially; all sweeps + clearance PASS). Nothing was purchased.
+- S = 0.72. Height: `192.7 mm` (cap 200). Sim mass `431.1 g`; head body (`jaw_soft`) `72.8 g`.
+  Head: original Microduck ×0.72, fixed jaw, 14 SCS0009 servos. All final — do not re-open.
 - Python: `mini/.venv`, CPython 3.12.2, **mujoco pinned to 3.10.0**.
 - spec.py: `HEAD_MODE = "microduck"`, `EXTRA_PARTS = [("neck","neck_frame")]`,
   `REMOVED_PARTS = ["neck"]` — unchanged.
 - Model: `mini/model/knoll_mini.xml` + `scene_knoll_mini.xml`, `nq 21 nu 14 nbody 16`.
-- NEW this session: `docs/BOM.md`, `docs/wiring.md`, `docs/assembly.md`, `docs/print_list.md`;
-  licence block appended to `docs/mass_budget.md` + `docs/software_porting.md`; top-level
-  README "Knoll Mini" section updated (doc links, BOM totals, stale "BDX head" text removed).
+- NEW this session: `top_head_shell.stl` + `bottom_head_shell.stl` extended outward to enclose
+  head-region servos (old versions in `parts/attic_head_v1/`); tools `head_protrusion.py`,
+  `head_enclosure.py`; render presets `back`, `servo_side`, `head_low` in `render_solid.py`.
 
 ## Head decision (session 4, still final)
 - **Session-3 BDX head: REJECTED.** Original Microduck head ×0.72, fixed jaw. `bdx_*` + old head
   `elec_*` live in `parts/attic_bdx/` (rejected, not deleted). Outside shape unchanged.
 
-## Check status (real outputs, end of session 6)
+## Check status (real outputs, end of session 7)
 | Check | Command | Result |
 |---|---|---|
-| Env | `python tools/assembly.py \| head -3` | `S=0.72 items=67 servos=14` · `height_mm 192.6` (unchanged, session 5) |
-| MJCF / torque / sweep / clearance | session-5 checks | all PASS, unchanged this session (no geometry/tool changes) |
-| A1 BOM totals | python snippet over 19 BOM lines | `total BNO085 USD 256` · `total MPU-6050 USD 246` · `GBP incl VAT @1.33: BNO085 GBP 193 MPU-6050 GBP 185` · `servos share 52%` — **PASS** (with UK-verified lines the GBP totals are £209/£201; see BOM.md) |
-| A2 [U] count | `grep -c "\[U\]" docs/BOM.md` | `19` (≥1) — **PASS**; every [V] carries URL + date |
-| A3 print list | trimesh volume×1.27×0.55 per STL | `TOTAL 35 pieces 161233 mm3 → 112.6 g` — **PASS**, output pasted in print_list.md |
-| A4 licence | `grep -L "CC BY-NC-SA" docs/*.md` | prints nothing — **PASS** |
-| A5 diff scope | `git diff --stat` | `README.md`, `mini/docs/mass_budget.md`, `mini/docs/software_porting.md` only; new files all under `mini/docs/` — **PASS** |
+| Clearance | `python tools/check_clearance.py` | `C1 PASS` `C2 PASS` `C3 PASS` `C4 height=192.7 mm (cap 200.0) PASS` — **OVERALL PASS** |
+| Parts | `python tools/check_parts.py` | `bottom_head_shell` watertight wall_p10=0.99mm PASS · `top_head_shell` watertight wall_p10=1.18mm PASS (other FAILs are pre-existing thin leg/trunk parts, unchanged) |
+| Sweeps | `python tools/sweep_check.py --joint X` | `head_yaw -120..+120 PASS` · `head_roll -25..+25 PASS` · `head_pitch -45..+45 PASS` · `neck_pitch -45..+45 PASS` |
+| Protrusion | `python tools/head_protrusion.py` | `head_roll 0/3185 enclosed` · `head_yaw 533/3185 right 4.50 mm` (residual in swept neck corridor) · `neck_pitch`/`head_pitch` neck region, by design |
+| MJCF | `python tools/build_mjcf.py` | wrote `knoll_mini.xml` + `scene_knoll_mini.xml`; `jaw_soft 72.8 g`, total `431.1 g` |
+| Torque | `python tools/torque_check.py` | `[STAND] T1 PASS` `T2 PASS; joints over rated 0.069: 0` — **OVERALL PASS** |
+| Renders | `python tools/render_solid.py` | `renders/solid/{front,side,three_quarter,head,back,servo_side,head_low}.png` — dome + face original; residual yaw band visible low on the right |
 
 ## Session 6 — what changed
 - `docs/BOM.md`: 19 lines, USD + GBP-incl-VAT columns, every line linked to a product page
@@ -48,6 +48,30 @@ Keep it under 150 lines. Paste the real check output (trimmed to the summary lin
 - Safety boxes (LiPo, soldering/inserts, buck bring-up, pinch points) in BOM.md + assembly.md.
 - **No geometry, spec.py or tool changes.** Nothing moved, nothing deleted.
 
+## Session 7 (head enclosure) — what changed
+- `tools/head_protrusion.py` (new): rasterizes all parts into a 0.5 mm occlusion grid, tests
+  servo-envelope samples for an unblocked path to the exterior; reports visible count and mm
+  past the skin silhouette per side. Baseline: `head_roll` back ~3.9 mm, `head_yaw`
+  sides ~4.5-4.9 mm + top ~0.7 mm; `neck_pitch`/`head_pitch` are neck-body servos (by design,
+  not part of this fix).
+- `tools/head_enclosure.py` (new): convex-hull bulge from exposed swept-envelope points +
+  nearby shell verts, grown by wall+clearance, unioned into the part; interior void = swept
+  env grown by `--void` (1.2 mm — the real STL horn tip sits ~0.7 mm past the envelope model).
+  `--zfloor` clips added material above a world-z plane; `--clear` carves a corridor out of
+  the bulge for every stationary part swept through head_yaw/head_roll/head_pitch (5° steps).
+- `bottom_head_shell.stl`: local back-rim bulge enclosing `head_roll` (vol 8.27→8.77 cm3,
+  extent +5.7 mm in the rear direction). `head_roll`: **0 visible — enclosed**.
+- `top_head_shell.stl`: small bulge covering the `head_yaw` top/back escapes at the dome edge
+  (vol 10.39→13.07 cm3, extents ~unchanged — fills the existing gap). Corridor-carved where
+  `yaw_roll_motion` sweeps during rolls.
+- **Residual (accepted per session instructions):** `head_yaw` low band on the right still
+  visible — 533/3185 samples, max 4.50 mm past the skin, at the dome-tray gap over the neck.
+  That region is the swept corridor of the neck parts: a full skirt enclosure collided up to
+  8.7 mm with `neck_pitch`/`neck_frame` during yaw/roll/pitch sweeps. Sweeps were kept over
+  enclosure — all four joints PASS with the committed shells.
+- `renders/solid/`: front, side, three_quarter, head, back, servo_side, head_low — dome and
+  flat angled face unchanged; no servo visible except the residual yaw band low on the right.
+
 ## Key facts for the next session
 - Electronics all sit in the head (all five `elec_*` placeholders). Trunk = battery, fuse,
   switch, UBEC, bus hub, BNO085. Neck carries 6V+GND up, BUS/SDA/SCL between head XIAO and
@@ -59,6 +83,10 @@ Keep it under 150 lines. Paste the real check output (trimmed to the summary lin
 - Head buck 6V→5V has thin headroom — flagged [U] with a pre-UBEC fallback in wiring.md.
 
 ## Open problems / things I could not do
+- `head_yaw` residual exposure: 4.50 mm on the right side (low band through the dome-tray
+  gap, over the neck column). Full enclosure is geometrically impossible there — stationary
+  neck parts sweep that space during head motion. Fix would need servo relocation or a
+  neck-part redesign, not a shell bulge.
 - SCS0009 actuator parameters (kp-equivalent, damping, armature, friction, backlash) unknown
   [U] — identify on real hardware before retraining.
 - I2S pin assignment on the XIAO is [U] (D8–D10 proposed; D11/D12 blocked by the Sense mic).
@@ -67,14 +95,15 @@ Keep it under 150 lines. Paste the real check output (trimmed to the summary lin
   and $2 fuse lines remain [U] — verified alternatives are noted per line in BOM.md.
 - Electronics standoffs/mounting posts inside the head are not modelled (<1 mm³ intersections,
   several within ~0.5 mm of a shell) — needs foam/tape or a future mounting-post pass.
-- Mass is 428.9 g vs the docstring's 378.9 g baseline ([U] electronics are estimates).
+- Mass is 431.1 g vs the docstring's 378.9 g baseline ([U] electronics are estimates;
+  +2.2 g of new shell material this session).
 
 ## Decisions that need the human
 - Speaker has no grille holes — drill a grille or leave.
 - The Ø26/Ø18 halo rings are modelled for the common ~37 mm OD 12-LED ring [U] — confirm the
   real ring OD before printing.
-- Head `jaw_soft` = 70.6 g vs ≤70 g [U] target — accept or shave the electronics estimate once
-  real boards are weighed.
+- Head `jaw_soft` = 72.8 g vs ≤70 g [U] target — accept or shave the electronics estimate once
+  real boards are weighed (bulges added ~2.2 g).
 - MPU-6050 (~$3) vs BNO085 ($13–29.50) IMU choice — saves ~$10 but loses fusion quality.
 
 ## Next session
