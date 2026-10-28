@@ -80,6 +80,8 @@ def _walk(s=None, stretch=None, want_meshes=True, part_dir=None, roll_override=N
                     continue
                 if mn in ("pcb__raspberry_pi_zero_2_w", "elec_rpi_robot_hat_pcb", "np_f970", "speaker", "lens"):
                     continue        # old electronics, replaced (see SPEC.md section 7)
+                if mn == "seeed_bearing__configuration_default" and name == spec.HEAD_BODY:
+                    continue        # session 4: roll idler is a plain printed bushing (SPEC 5.4)
                 if mn in spec.REMOVED_PARTS:
                     continue
                 if spec.HEAD_MODE == "bdx" and mn in spec.HEAD_REPLACE_PARTS:

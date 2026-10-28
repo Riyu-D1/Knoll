@@ -1,4 +1,4 @@
-# Knoll Mini (Microduck body + BDX-style head): SPEC
+# Knoll Mini (Microduck ×0.72): SPEC
 
 The fixed design contract. All numbers also live in `mini/tools/spec.py`, which the tools read, so change them **there** and log each change in section 12.
 Marker meanings:
@@ -10,7 +10,7 @@ A cheaper, smaller Microduck:
 - **Height:** 15–20 cm. Target is 192.6 mm at the S=0.72 baseline [V].
 - **Servos:** 14 Feetech SCS0009 replace the 15 Dynamixel XL330. The mouth servo is dropped.
 - **Body, legs and neck:** same joints, same axes and same kinematics as Microduck. Every part is uniformly scaled by S, then locally modified only where the smaller servo needs it.
-- **Head:** a new Disney-BDX-droid-style head shell (section 7) mounted on the unchanged head_roll interface.
+- **Head:** the ORIGINAL Microduck head (the 8 upstream STLs, scaled ×0.72) on the unchanged head_roll interface, relieved internally only where the SCS0009 hardware sweeps it. The Session-3 BDX head was rejected — see section 7.
 
 ## 2. Sources and pinning
 | What | Where | Pin |
@@ -127,7 +127,7 @@ Motion sweep baseline (`sweep_check.py`, 2026-10-27) [V]:
 | head_yaw | ±120° | PASS | |
 | head_roll | ±25° | FAIL | old head shells vs head_pitch servo, up to 20.2 mm; motor_support vs head_yaw servo, 3.0 mm at +25° |
 
-Session 1 fixes the hip, knee and ankle rows. Session 2 fixes neck_pitch, head_pitch and the motor_support part of head_roll. Session 3 fixes the rest of head_roll, because the old shells are replaced.
+Session 1 fixes the hip, knee and ankle rows. Session 2 fixes neck_pitch, head_pitch and the motor_support part of head_roll. Session 4 fixes the rest of head_roll by swept cuts on the original head shells (the Session-3 BDX head was rejected).
 
 Left-ankle recipe, verified on a scratch copy: pocket+cradle in `leg`, `stretch_mesh` ankle_left x/plane 30/side −/delta 9, `idler_boss`, then `swept_cut` on ankle_left (grow 0.8, −24 % volume) and foot_left (grow 0.5). Result: left-ankle C3 clear, and ankle_left, leg and foot_left all P1–P4 PASS.
 
@@ -168,33 +168,35 @@ Left-ankle recipe, verified on a scratch copy: pocket+cradle in `leg`, `stretch_
 
 The dropped mouth servo was an XL330 in jaw_soft at world (33, 25.6, 238.6) full scale.
 
-## 7. Head interface and BDX head
+## 7. Head interface and ORIGINAL Microduck head
 - **Interface (keep, do not move):**
   - The head is body `jaw_soft`. The head_roll servo is held by `motor_support`, which is KEPT, pocketed for the SCS0009 and becomes the head's mounting chassis.
-  - Replaced parts: top_head_shell, bottom_head_shell, face_part, jaw, jaw_soft, soft_mouth_top, noenoeil, m12_lens_holder.
   - Sites in the jaw_soft frame (full-scale metres, ×S): head_camera (0.0155, 0, −0.0733), tof (0.0135, 0.0224, −0.0733), head_imu (0.0152, 0, −0.051) [V].
-- **New parts** (`spec.BDX_HEAD_PARTS`, all authored in the jaw_soft body frame in mm): bdx_head_top, bdx_head_bottom, bdx_face_plate, bdx_eye_bezel_l, bdx_eye_bezel_r. Set `HEAD_MODE = "bdx"` once they exist.
-- **Shape (BDX droid look):**
-  - **Size and lean:** a large, rounded, forward-leaning head. It reads as a "helmet" about 1.25× the old head's length in X and as wide as the shoulders (≈ 95–105 mm wide at mini scale [U]), with the crown tilted ~10–15° forward.
-  - **Eyes:** two big round eyes on the front face, about 28–32 mm outer bezel, holding 2 × 16-LED WS2812 rings (OD ≈ 44 mm for the common ring, or 12-LED OD ≈ 37 mm [U]; pick the ring that fits and record it). Behind each ring sits a 1.5 mm frosted PETG/white diffuser disc.
-  - **Brow:** a pronounced brow ridge above the eyes, protruding 4–6 mm.
-  - **Jaw:** a small, short lower face/jaw below and behind the eyes. It is fixed, because the mouth servo was dropped.
-  - **Panel lines:** optional 0.6 mm-deep grooves for the droid look.
-- **Electronics in the head:**
+- **Head parts (`HEAD_MODE = "microduck"`, all upstream STLs scaled ×0.72):**
+  top_head_shell, bottom_head_shell, face_part, jaw, jaw_soft, soft_mouth_top, noenoeil, m12_lens_holder
+  (+ kept `motor_support`). `noenoeil` is a single Ø21.6 mm cyclops eye puck with a recessed centre;
+  the OV2640 camera looks through it on the `m12_lens_holder` axis.
+  - The **jaw is static/fixed** — the mouth servo was dropped, so `jaw`'s servo pocket is left unused and no moving jaw is modelled.
+  - **Session-3 BDX head: rejected.** `bdx_*.stl` and its `elec_*` placeholders are kept in `parts/attic_bdx/`; do not use or improve them.
+  - **Servo clearance (Session 4):** the fatter SCS0009 `yaw_roll_motion` cradle and neck parts graze the original shells during `head_roll ±25°`. Fixed by swept cuts on the HEAD parts only (`swept_cut.py` exact-mesh cutters, grow 0.3): top_head_shell −6.8%, bottom_head_shell −6.8%, jaw −4.7%, motor_support −3.4%; outside shape unchanged. The jaw_soft `seeed_bearing__configuration_default` roll idler is omitted (plain printed bushing per §5.4) — its rim grazed neck parts the same way.
+- **Electronics in the head** (`tools/make_head_elec.py`, authored in the jaw_soft frame in mm; pairwise boolean intersection with every part < 1 mm³ [V]):
 
 | Component | Position and mounting |
 |---|---|
-| XIAO ESP32-S3 Sense | Camera at the head_camera site, looking through a Ø8 mm window between the eyes, low on the face |
-| VL53L0X | At the tof site, behind a Ø6 mm window |
-| Speaker (Ø20–28 mm [U]) | In the back of the head with a grille of Ø2 holes |
+| XIAO ESP32-S3 Sense | Board 21×17.5×6 right of the eye axis (x −4..17, y −25..−8, z −37..−30, rear-outer corner chamfered for the dome wall); OV2640 cube at the eye axis z −39.6..−34.6 joined by a flex-ribbon stub |
+| 2 × WS2812 rings | Ø26/Ø18 × 2.4 halo annuli stacked around the lens barrel behind `noenoeil`, z −42.9..−37.5 |
+| VL53L0X | 10.5×11×3 board at the right ToF window (x 4.5..15, y 14..25, z −42.5..−39.5) |
+| Speaker (Ø22 × 4) | Flat disc membrane-up in the upper dome (x 12..16, y ±11, z −3..19) |
+| Buck 5 V | 6×18×15 board on the left interior flank (x −11..−5, y 12..30, z 0.5..15.5) |
 | MAX98357A amp | Next to the XIAO |
 | Mic | On the XIAO Sense board; a Ø2 hole near it |
 | Cables | One bundle through the neck along the head_yaw axis with a ≥ 60 mm service loop for ±150° yaw; strain relief clip on motor_support |
 
 - **Head limits:**
   - Head mass target ≤ 70 g including electronics [U].
-  - The head must clear the neck through head_pitch ±45°, head_yaw ±120° and head_roll ±25° (`sweep_check.py`).
-- **Printability:** printable without supports where possible. Split into top/bottom shells along a horizontal plane and join with M2 screws into heat-set inserts or pilot holes.
+  - The head must clear the neck through head_pitch ±45°, head_yaw ±120° and head_roll ±25° (`sweep_check.py`) — all three PASS in session 4 [V].
+  - Electronics placeholders live inside the original shells; the outside shape is unchanged.
+- **Printability:** unchanged from upstream (the shells are the original two-part dome).
 
 ## 8. Electronics (replaces Pi Zero 2 W + HAT + NP-F970)
 | Item | Notes |
@@ -220,7 +222,8 @@ STEP reconstruction, repairs, validation and CAD sheets: tianjin66 and project c
 Source: https://github.com/tianjin66/microduck-step-3d-models-ai-stl
 Licence: CC BY-NC-SA 4.0 — https://creativecommons.org/licenses/by-nc-sa/4.0/
 Changes: uniformly scaled by 0.72; servo pockets/cradles re-cut for Feetech SCS0009; local stretches
-(see SPEC.md 5.3); bearing seats changed to 6700ZZ; original head replaced by a BDX-style head.
+(see SPEC.md 5.3); bearing seats changed to 6700ZZ; head shells swept-relieved internally for the
+SCS0009 neck cradle (Session 3's BDX head rejected; outside shape unchanged).
 ```
 - **Derived meshes:** all derived meshes and STLs in `mini/parts/` are **CC BY-NC-SA 4.0**, so non-commercial and share-alike.
 - **Fix Knoll's claims:** any CERN-OHL or Apache-2.0 claim in the Knoll repo that covers these meshes is wrong.
@@ -245,3 +248,6 @@ Changes: uniformly scaled by 0.72; servo pockets/cradles re-cut for Feetech SCS0
 | 2026-10-27 | 2 | EXTRA_PARTS = [("neck","neck_frame")]; REMOVED_PARTS = ["neck"] | merge_body_frame --hull replaces the two tiny XL330 neck plates with one SCS0009 bracket cradling neck_pitch + head_pitch; final part is the hull clipped to x<=-1 plus swept clearance cuts (full --hull was too fat to swing neck_pitch +-45 past the trunk) | merge: watertight bodies=1; check_clearance C1-C4 PASS; check_parts + all 3 neck/head sweeps PASS |
 | 2026-10-27 | 3 | HEAD_MODE = "bdx" | BDX head parts generated by make_bdx_head.py (5 watertight parts), replacing the 8 upstream head STLs | see HANDOFF S3 |
 | 2026-10-27 | 3 | COSMETIC_PARTS += 7 bdx_* names; BDX_HEAD_PARTS += bdx_eye_diffuser_l/r | head shells/bezels/diffusers are cosmetic parts (P4 0.9 mm bar); diffuser discs ship as printed parts | check_parts --only bdx_* + motor_support: OVERALL PASS |
+| 2026-10-28 | 4 | HEAD_MODE = "microduck"; 8 original head STLs back in parts/current; bdx_* + old elec_* -> parts/attic_bdx/ | Session-3 BDX head rejected; revert to the original Microduck head | check_clearance C1-C4 PASS; all 3 head sweeps PASS |
+| 2026-10-28 | 4 | swept_cut.py: exact: cutters, multi-token --servo, --horn, --keep-largest; head shells swept vs exact neck/yaw meshes (grow 0.3, head_roll ±25) | hull cutters removed too much; FCL depth over-reports for parts inside concave shells — boolean volumes were tens of mm3 | head_roll PASS; check_parts top/bottom_head_shell, jaw, motor_support PASS |
+| 2026-10-28 | 4 | assembly.py skips jaw_soft seeed_bearing__configuration_default; elec_* placeholders regenerated for the original head (make_head_elec.py) | roll idler rim grazed static neck parts; plain printed bushing per 5.4; electronics refit inside the original dome | elec pairwise intersections <1 mm3; check_clearance C1-C4 PASS |
