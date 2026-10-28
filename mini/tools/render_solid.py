@@ -46,7 +46,16 @@ VIEWS = {  # name: (elev, azim, zoom_target, zoom_radius or None)
     "back":          (14, -25, "jaw_soft", None),
     "servo_side":    (4, -90, "jaw_soft", None),
     "head_low":      (-28, 160, "jaw_soft", None),
+    "h_front":       (8, 0, "jaw_soft", None),
+    "h_back":        (12, 180, "jaw_soft", None),
+    "h_left":        (10, 90, "jaw_soft", None),
+    "h_right":       (10, -90, "jaw_soft", None),
+    "h_top":         (85, -25, "jaw_soft", None),
+    "h_bottom":      (-65, -25, "jaw_soft", None),
+    "h_tq":          (18, -25, "jaw_soft", None),
+    "h_cutaway":     (8, 70, "jaw_soft", None),    # sagittal cut at world y=0, shells only
 }
+CUT_MESHES = {"top_head_shell", "bottom_head_shell"}   # h_cutaway sections only the shells
 allv = np.vstack([i.mesh_obj.vertices for i in items])
 c_all = (allv.max(0) + allv.min(0)) / 2
 r_all = (allv.max(0) - allv.min(0)).max() / 2
@@ -62,6 +71,8 @@ for name in a.views.split(","):
     tris, cols = [], []
     for it in items:
         tri = it.mesh_obj.triangles
+        if name == "h_cutaway" and it.mesh in CUT_MESHES:
+            tri = tri[tri.mean(1)[:, 1] <= 0.0]        # drop the y>0 half at the sagittal cut
         if len(tri) > 40000:
             tri = tri[np.linspace(0, len(tri) - 1, 40000).astype(int)]
         tris.append(tri)
@@ -73,7 +84,7 @@ for name in a.views.split(","):
     ax.set_xlim(c[0] - r, c[0] + r); ax.set_ylim(c[1] - r, c[1] + r); ax.set_zlim(c[2] - r, c[2] + r)
     ax.set_box_aspect((1, 1, 1)); ax.view_init(el, az)
     ax.set_axis_off()
-    ax.set_title(f"Knoll Mini {name}  S={spec.S}  q={q or 'zero'}  (head = original microduck x0.72)")
+    ax.set_title(f"Knoll Mini {name}  S={spec.S}  q={q or 'zero'}  head={spec.HEAD_MODE}")
     fig.savefig(out / f"{name}.png", dpi=110, bbox_inches="tight", pad_inches=0.05)
     plt.close(fig)
     print("wrote", out / f"{name}.png")

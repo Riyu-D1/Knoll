@@ -86,19 +86,22 @@ SERVO_ROLL_DEG = {   # pre-verified on 2026-10-27 (tools/search_layout.py)
 
 }
 
-HEAD_MODE = "microduck"   # session 4: original head restored; session 3's "bdx" was rejected
+HEAD_MODE = "bdx"        # session 8A: BDX head (tools/make_head_bdx.py); session-3 bdx stayed rejected
 HEAD_BODY = "jaw_soft"   # everything in this body is the head
 HEAD_KEEP_PARTS = ["motor_support"]   # head-side interface: head_roll servo cradle + bearing seat
 HEAD_REPLACE_PARTS = ["top_head_shell", "bottom_head_shell", "face_part", "jaw", "jaw_soft",
-                      "soft_mouth_top", "noenoeil", "m12_lens_holder"]
+                      "soft_mouth_top", "noenoeil"]   # m12_lens_holder stays (camera axis part)
 NON_PRINTED = ["xl330", "np_f970", "pcb__raspberry_pi_zero_2_w", "elec_rpi_robot_hat_pcb", "speaker",
                "lens", "seeed_bearing__configuration__22x16x4", "seeed_bearing__configuration_default"]
 
 # Thin-wall rule (check_parts.py P4): structural >= 1.2 mm, cosmetic >= 0.9 mm (10th percentile).
 COSMETIC_PARTS = ["left_shell", "right_shell", "banana_pcb_locker", "top_head_shell", "bottom_head_shell",
-                  "face_part", "soft_mouth_top", "m12_lens_holder", "noenoeil", "jaw", "jaw_soft"]
-# Rejected session-3 BDX head names (meshes archived in parts/attic_bdx/; HEAD_MODE is "microduck").
-BDX_HEAD_PARTS = ["bdx_head_top", "bdx_head_bottom", "bdx_face_plate", "bdx_eye_bezel_l", "bdx_eye_bezel_r"]
+                  "face_part", "soft_mouth_top", "m12_lens_holder", "noenoeil", "jaw", "jaw_soft",
+                  "head_eye_lens_l", "head_antenna_left", "head_antenna_right"]
+# Session-8A BDX head (tools/make_head_bdx.py; session-3 bdx_* names archived in parts/attic_bdx/).
+# Parts authored in the jaw_soft frame, loaded only when HEAD_MODE == "bdx".
+BDX_HEAD_PARTS = ["top_head_shell", "bottom_head_shell", "head_eye_lens_l",
+                  "head_antenna_left", "head_antenna_right"]
 # Extra (non-printed) electronics placeholders: (body, stl name in parts/current, mass_g). Session 3/5 fill.
 ELECTRONICS = [   # masses are ESTIMATES (unverified); the STL is optional (mass counts either way)
     ("trunk_base", "elec_battery_2s_450", 32.0),   # 2S 450 mAh LiPo with XT30 lead
