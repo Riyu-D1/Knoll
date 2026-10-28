@@ -14,7 +14,7 @@ I = lambda a, b: trimesh.boolean.intersection([a, b], engine="manifold")
 P = dict(                      # all mm / degrees, head frame H.  [U] = taste, tune freely within the limits in SPEC 7
     dome_c=(12.0, 0.0, 5.0), dome_r=(45.0, 48.0, 30.0),   # big rounded helmet (fwd, side, up radii)
     lean_deg=12.0,             # forward lean of the whole head shape (nose down)
-    wall=1.6,
+    wall=1.8,
     brow_z=22.0, brow_h=6.0, brow_out=4.5,                 # brow ridge band height and how far it stands out
     chin_c=(36.0, 0.0, -13.0), chin_r=(18.0, 26.0, 9.0),  # small lower face / jaw
     cut_bottom_z=-16.0,        # flat bottom (neck enters from below)
@@ -25,8 +25,8 @@ P = dict(                      # all mm / degrees, head frame H.  [U] = taste, t
     cam=(0.0, -6.0, 8.0),      # camera window: y, z, diameter (between/below the eyes)
     tof=(12.0, -9.0, 6.0),     # ToF window: y, z, diameter
     grille_x=-25.0, grille_d=2.0,
-    posts=[(0.0, 4.0), (24.0, 4.0)],   # (x, z) of the 2+2 side posts that screw into motor_support
-    ms_y=(24.5, -28.4),        # motor_support side faces (+y, -y) in this frame, from SPEC/HANDOFF
+    posts=[(-16.0, 3.0), (-25.0, 3.0)],   # (x, z) of the 2+2 side posts that screw into motor_support
+    ms_y=(11.0, -22.0),        # motor_support side faces (+y, -y) in this frame: its solid back block (world x -20..-4) has faces y=+11/-22
 )
 
 def ell(c, r, sub=5):
