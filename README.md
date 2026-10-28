@@ -57,9 +57,15 @@ Key decisions (full rationale in `decisions/architecture-decision-record.md`):
 
 ## Knoll Mini (work in progress)
 
-A ×0.72-scale (~19 cm) Microduck-derived mini built in `mini/` on branch `build/microduck-bdx-mini`:
-14 cheap Feetech SCS0009 servos replace the XL330s, joints/axes/kinematics unchanged, plus a new BDX-droid-style head.
+A ×0.72-scale (~19 cm, 428.9 g sim mass) Microduck-derived mini built in `mini/` on branch `build/microduck-bdx-mini`:
+14 cheap Feetech SCS0009 servos replace the XL330s, joints/axes/kinematics unchanged, fixed jaw, and the original Microduck head kept (Session-3 BDX head was rejected).
 Fixed design contract and build log live in [`mini/SPEC.md`](mini/SPEC.md) and `mini/HANDOFF.md` — this is derivative work, unlike the original Knoll Mk1 above.
+
+Build docs: [BOM](mini/docs/BOM.md) (~$256 / £209 incl UK VAT with BNO085, ~$246 / £201 with MPU-6050) ·
+[wiring](mini/docs/wiring.md) · [assembly](mini/docs/assembly.md) ·
+[print list](mini/docs/print_list.md) (30 STLs, ~113 g PETG) — plus
+[mass budget](mini/docs/mass_budget.md) and
+[software porting](mini/docs/software_porting.md).
 
 ```
 Original design and STL: Pollen Robotics / Microduck.
@@ -67,5 +73,6 @@ STEP reconstruction, repairs, validation and CAD sheets: tianjin66 and project c
 Source: https://github.com/tianjin66/microduck-step-3d-models-ai-stl
 Licence: CC BY-NC-SA 4.0 — https://creativecommons.org/licenses/by-nc-sa/4.0/
 Changes: uniformly scaled by 0.72; servo pockets/cradles re-cut for Feetech SCS0009; local stretches
-(see SPEC.md 5.3); bearing seats changed to 6700ZZ; original head replaced by a BDX-style head.
+(see SPEC.md 5.3); bearing seats changed to 6700ZZ; head shells swept-relieved internally for the
+SCS0009 neck cradle (Session 3's BDX head rejected; outside shape unchanged).
 ```

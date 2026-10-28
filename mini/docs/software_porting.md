@@ -57,3 +57,15 @@ names are identical to upstream.
   check footprint before buying) upgrade candidates if the real robot stalls.
 - **Latency:** SCS bus reads + Wi-Fi round trip add 10–20 ms [U] to the control
   loop vs the simulated instant actuation — include latency in the retrain.
+
+---
+
+```
+Original design and STL: Pollen Robotics / Microduck.
+STEP reconstruction, repairs, validation and CAD sheets: tianjin66 and project contributors.
+Source: https://github.com/tianjin66/microduck-step-3d-models-ai-stl
+Licence: CC BY-NC-SA 4.0 — https://creativecommons.org/licenses/by-nc-sa/4.0/
+Changes: uniformly scaled by 0.72; servo pockets/cradles re-cut for Feetech SCS0009; local stretches
+(see SPEC.md 5.3); bearing seats changed to 6700ZZ; head shells swept-relieved internally for the
+SCS0009 neck cradle (Session 3's BDX head rejected; outside shape unchanged).
+```

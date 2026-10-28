@@ -48,3 +48,15 @@ subtree mass verified at 428.9 g.
   2 g each; the jaw_soft roll idler bearing is intentionally absent (printed bushing).
 - Baseline docstring reference was 378.9 g before head electronics placeholders and
   the session-2/4 part changes; current verified total is 428.9 g.
+
+---
+
+```
+Original design and STL: Pollen Robotics / Microduck.
+STEP reconstruction, repairs, validation and CAD sheets: tianjin66 and project contributors.
+Source: https://github.com/tianjin66/microduck-step-3d-models-ai-stl
+Licence: CC BY-NC-SA 4.0 — https://creativecommons.org/licenses/by-nc-sa/4.0/
+Changes: uniformly scaled by 0.72; servo pockets/cradles re-cut for Feetech SCS0009; local stretches
+(see SPEC.md 5.3); bearing seats changed to 6700ZZ; head shells swept-relieved internally for the
+SCS0009 neck cradle (Session 3's BDX head rejected; outside shape unchanged).
+```
