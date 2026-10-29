@@ -54,6 +54,20 @@ VIEWS = {  # name: (elev, azim, zoom_target, zoom_radius or None)
     "h_bottom":      (-65, -25, "jaw_soft", None),
     "h_tq":          (18, -25, "jaw_soft", None),
     "h_cutaway":     (8, 70, "jaw_soft", None),    # sagittal cut at world y=0, shells only
+    # leg views (refinement B): zoom on the left/right leg region below the trunk
+    "l_front":       (6, 0, "legL", None),
+    "l_back":        (6, 180, "legL", None),
+    "l_outer":       (6, 90, "legL", None),
+    "l_inner":       (6, -90, "legL", None),
+    "l_tq":          (16, -40, "legL", None),
+    "l_tq_back":     (16, 140, "legL", None),
+    "r_front":       (6, 0, "legR", None),
+    "r_outer":       (6, -90, "legR", None),
+    "legs_front":    (5, 0, "legs", None),
+    "legs_back":     (5, 180, "legs", None),
+    "legs_side":     (5, -90, "legs", None),
+    "legs_tq":       (14, -35, "legs", None),
+    "legs_low":      (-35, -35, "legs", None),
 }
 CUT_MESHES = {"top_head_shell", "bottom_head_shell"}   # h_cutaway sections only the shells
 allv = np.vstack([i.mesh_obj.vertices for i in items])
@@ -62,10 +76,22 @@ r_all = (allv.max(0) - allv.min(0)).max() / 2
 head_v = np.vstack([i.mesh_obj.vertices for i in items if i.body == "jaw_soft"])
 c_h = (head_v.max(0) + head_v.min(0)) / 2
 r_h = (head_v.max(0) - head_v.min(0)).max() / 2 * 1.35
+LCH = {"yaw2roll", "hip_l", "upper_leg_left", "leg", "ankle_left"}
+RCH = {"bearing_roll", "hip_l_2", "upper_leg_right", "leg_2", "ankle_right"}
+legL_v = np.vstack([i.mesh_obj.vertices for i in items if i.body in LCH])
+c_l = (legL_v.max(0) + legL_v.min(0)) / 2
+r_l = (legL_v.max(0) - legL_v.min(0)).max() / 2 * 1.15
+legR_v = np.vstack([i.mesh_obj.vertices for i in items if i.body in RCH])
+c_r = (legR_v.max(0) + legR_v.min(0)) / 2
+r_r = (legR_v.max(0) - legR_v.min(0)).max() / 2 * 1.15
+legs_v = np.vstack([legL_v, legR_v])
+c_b = (legs_v.max(0) + legs_v.min(0)) / 2
+r_b = (legs_v.max(0) - legs_v.min(0)).max() / 2 * 1.15
+ZOOM = {"jaw_soft": (c_h, r_h), "legL": (c_l, r_l), "legR": (c_r, r_r), "legs": (c_b, r_b)}
 
 for name in a.views.split(","):
     el, az, target, _ = VIEWS[name]
-    c, r = (c_h, r_h) if target == "jaw_soft" else (c_all, r_all)
+    c, r = ZOOM.get(target, (c_all, r_all))
     fig = plt.figure(figsize=(7.5, 8.5))
     ax = fig.add_subplot(111, projection="3d")
     tris, cols = [], []

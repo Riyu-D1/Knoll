@@ -62,7 +62,7 @@
     <equality solref="0.002 1" solimp="0.99 0.999 0.0005 0.5 2" />
   </default>
   <worldbody>
-    <body name="trunk_base" pos="0 0 0.07970" quat="1 0 0 0" childclass="microduck">
+    <body name="trunk_base" pos="0 0 0.08020" quat="1 0 0 0" childclass="microduck">
       <freejoint name="trunk_base_freejoint" />
       <inertial pos="-0.0162959 -1.94996e-05 0.00201646" mass="0.123909" fullinertia="3.99724e-05 4.70516e-05 3.71919e-05 2.3102e-08 -6.67142e-06 4.26982e-08" />
       <geom type="mesh" class="visual" pos="0.00432 0.0126 -0.0036" quat="1 -0 -0 0" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
@@ -78,19 +78,19 @@
       <site group="3" name="imu" pos="-0.01512 4.78151e-05 -0.0105828" quat="1 -0 -0 -0" />
       <body name="yaw2roll" pos="0.00432 0.0126 -0.0061" quat="0 -0.707107 -0.707107 -0">
         <joint axis="0 0 1" name="left_hip_yaw" type="hinge" range="-0.436332 0.523599" class="chosen_actuator" />
-        <inertial pos="-6.336e-11 0.000715781 0.012162" mass="0.020938" fullinertia="1.9769e-06 1.60997e-06 1.096e-06 -0 -0 -2.39697e-08" />
+        <inertial pos="-6.336e-11 0.000715781 0.012162" mass="0.0187695" fullinertia="1.77215e-06 1.44323e-06 9.82487e-07 -0 -0 -2.14872e-08" />
         <geom type="mesh" class="visual" pos="-0.0126 -0.00144 0.009" quat="0 1 0 0" mesh="yaw2roll" material="yaw2roll_material" />
         <geom type="mesh" class="visual" pos="-0 -0 0.009" quat="0 -0.707107 0.707107 0" mesh="scs0009" material="xl330_material" name="servo_left_hip_roll" />
         <geom type="mesh" class="visual" pos="-0 0.01188 0.009" quat="0.5 0.5 0.5 -0.5" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
         <geom type="mesh" class="visual" pos="-0.0126 -0.00144 0.009" quat="0 -1 -0 -0" mesh="bearing_roll" material="bearing_roll_material" />
         <body name="hip_l" pos="0 0.01188 0.009" quat="0.707107 -0.707107 0 -0">
           <joint axis="0 0 1" name="left_hip_roll" type="hinge" range="-0.383972 0.383972" class="chosen_actuator" />
-          <inertial pos="0.0106668 1.16489e-08 -0.00597594" mass="0.00317964" fullinertia="2.29199e-07 3.0827e-07 1.73529e-07 2.66317e-13 1.03832e-07 -2.66317e-13" />
+          <inertial pos="0.0106668 1.16489e-08 -0.00597594" mass="0.00487842" fullinertia="3.51653e-07 4.72969e-07 2.6624e-07 4.08602e-13 1.59306e-07 -4.08602e-13" />
           <geom type="mesh" class="visual" pos="0.01512 0 -0.01332" quat="0.5 0.5 0.5 0.5" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
           <geom type="mesh" class="visual" pos="-0.0126 0 -0.01332" quat="0.707107 -0.707107 0 0" mesh="hip_l" material="hip_l_material" />
           <body name="upper_leg_left" pos="0.018 0 -0.01332" quat="0.5 -0.5 0.5 -0.5">
             <joint axis="0 0 1" name="left_hip_pitch" type="hinge" range="-1.5708 1.5708" class="chosen_actuator" />
-            <inertial pos="0.00487152 0.0164763 0.00968623" mass="0.0380321" fullinertia="6.90176e-06 4.24082e-06 8.10892e-06 -1.80711e-06 9.32414e-08 1.59217e-07" />
+            <inertial pos="0.00487152 0.0164763 0.00968623" mass="0.039217" fullinertia="7.11677e-06 4.37293e-06 8.36154e-06 -1.86341e-06 9.61462e-08 1.64178e-07" />
             <geom type="mesh" class="visual" pos="-0 -0 -0.0306" quat="0.5 -0.5 -0.5 -0.5" mesh="upper_leg_left" material="upper_leg_left_material" />
             <geom type="mesh" class="visual" pos="0.01584 0.0257595 0.009" quat="0.5 -0.5 -0.5 -0.5" mesh="scs0009" material="xl330_material" name="servo_left_knee" />
             <geom type="mesh" class="visual" pos="0 0 -0.0306" quat="0.5 -0.5 -0.5 -0.5" mesh="upper_leg_rigidity_plate" material="upper_leg_rigidity_plate_material" />
@@ -98,13 +98,13 @@
             <geom type="mesh" class="visual" pos="0 -0 0.009" quat="0.5 0.5 -0.5 0.5" mesh="scs0009" material="xl330_material" name="servo_left_hip_pitch" />
             <body name="leg" pos="0.01584 0.0257595 -0.00288" quat="0 0.707107 0.707107 0">
               <joint axis="0 0 1" name="left_knee" type="hinge" range="-1.5708 1.5708" class="chosen_actuator" />
-              <inertial pos="-1.0944e-10 0.0229635 -0.00686524" mass="0.0148019" fullinertia="1.86659e-06 7.66133e-07 1.54261e-06 -3.55502e-13 0 2.71961e-07" />
+              <inertial pos="-1.0944e-10 0.0229635 -0.00686524" mass="0.0165415" fullinertia="2.08596e-06 8.56172e-07 1.72391e-06 -3.97283e-13 0 3.03923e-07" />
               <geom type="mesh" class="visual" pos="-0.01584 0.0257595 0.02772" quat="0.5 0.5 0.5 -0.5" mesh="leg" material="leg_material" />
               <geom type="mesh" class="self_collision_only" pos="-0.01584 0.0257595 0.02772" quat="0.5 0.5 0.5 -0.5" mesh="leg" material="leg_material" />
               <geom type="mesh" class="visual" pos="-0 0.03024 -0.00828" quat="0.707107 -1.51207e-16 -0.707107 -0" mesh="scs0009" material="xl330_material" name="servo_left_ankle" />
               <body name="ankle_left" pos="-0 0.03024 -0.01872" quat="0 -1 -0 0">
                 <joint axis="0 0 1" name="left_ankle" type="hinge" range="-1.5708 1.5708" class="chosen_actuator" />
-                <inertial pos="-0.00443334 -0.00989878 -0.0112741" mass="0.00733979" fullinertia="7.49626e-07 1.41344e-06 9.80893e-07 -2.6024e-08 1.04145e-08 7.18825e-09" />
+                <inertial pos="-0.00443334 -0.00989878 -0.0112741" mass="0.00821343" fullinertia="8.38852e-07 1.58168e-06 1.09765e-06 -2.91216e-08 1.16541e-08 8.04385e-09" />
                 <geom type="mesh" class="visual" pos="-0.01584 0.0044805 -0.046584" quat="0.5 -0.5 -0.5 -0.5" mesh="sole_left" material="sole_left_material" />
                 <geom type="mesh" name="left_foot_collision" class="collision" pos="-0.01584 0.0044805 -0.046584" quat="0.5 -0.5 -0.5 -0.5" mesh="sole_left" material="sole_left_material" />
                 <geom type="mesh" class="visual" pos="-0.01584 0.0044805 -0.046584" quat="0.5 -0.5 -0.5 -0.5" mesh="foot_left" material="foot_left_material" />
@@ -135,23 +135,21 @@
             <geom type="mesh" class="visual" pos="0.01296 0 0.01044" quat="0.707107 0 -0.707107 -0" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
             <body name="jaw_soft" pos="-0.012888 0 0.01044" quat="0.707107 0 -0.707107 -0">
               <joint axis="0 0 1" name="head_roll" type="hinge" range="-0.436332 0.436332" class="chosen_actuator" />
-              <inertial pos="0.00331577 0.000864338 -0.0233828" mass="0.0728043" fullinertia="6.41427e-05 5.08046e-05 2.99673e-05 -1.2642e-07 1.31391e-06 8.367e-07" />
-              <geom type="mesh" class="visual" pos="-0.00324 -6.5792e-05 -0.012816" quat="0.5 0.5 0.5 0.5" mesh="face_part" material="face_part_material" />
-              <geom type="mesh" class="visual" pos="-0.003312 0 -0.0129597" quat="0.5 0.5 0.5 0.5" mesh="jaw_soft" material="jaw_soft_material" />
+              <inertial pos="0.00331577 0.000864338 -0.0233828" mass="0.0804828" fullinertia="7.09077e-05 5.61628e-05 3.31279e-05 -1.39754e-07 1.45248e-06 9.24945e-07" />
               <geom type="mesh" class="visual" pos="-0.00324 -0 -0.01296" quat="0.5 0.5 0.5 0.5" mesh="motor_support" material="motor_support_material" />
-              <geom type="mesh" class="visual" pos="-0.00324 -0 -0.01296" quat="0.5 0.5 0.5 0.5" mesh="top_head_shell" material="top_head_shell_material" />
               <geom type="mesh" class="visual" pos="0 0 0.01044" quat="0.5 -0.5 -0.5 -0.5" mesh="scs0009" material="xl330_material" name="servo_head_roll" />
               <geom type="mesh" class="visual" pos="0.002304 -0.0288 -0.01296" quat="0.5 -0.5 0.5 0.5" mesh="seeed_bearing__configuration_default" material="seeed_bearing__configuration_default_material" />
-              <geom type="mesh" class="visual" pos="-0.00302451 1.27987e-08 -0.0130186" quat="0.5 0.5 0.5 0.5" mesh="soft_mouth_top" material="soft_mouth_top_material" />
-              <geom type="mesh" class="visual" pos="-0.00324 -6.5792e-05 -0.012816" quat="0.5 0.5 0.5 0.5" mesh="noenoeil" material="noenoeil_material" />
-              <geom type="mesh" class="visual" pos="-0.00324 -0 -0.01296" quat="0.5 0.5 0.5 0.5" mesh="jaw" material="jaw_material" />
-              <geom type="mesh" class="visual" pos="-0.003096 -0 -0.01296" quat="0.5 0.5 0.5 0.5" mesh="bottom_head_shell" material="bottom_head_shell_material" />
               <geom type="mesh" class="visual" pos="0.01116 -6.5792e-05 -0.0400176" quat="0.5 -0.5 0.5 -0.5" mesh="m12_lens_holder" material="m12_lens_holder_material" />
               <site group="3" name="head_camera" pos="0.01116 -6.5792e-05 -0.052776" quat="0.707107 -0 0.707107 0" />
               <camera name="head_camera" pos="0.01116 -6.5792e-05 -0.052776" quat="0 0 -1 0" />
               <site group="3" name="tof" pos="0.00972 0.0161342 -0.052776" quat="0.707107 -0 0.707107 0" />
               <site group="3" name="head_imu" pos="0.0109673 7.99697e-05 -0.0367632" quat="1 0 -0 0" />
               <site group="3" name="mouth_tip" pos="-0.0058272 -0 -0.0559716" quat="0.704015 -0 0.710185 0" />
+              <geom type="mesh" class="visual" mesh="top_head_shell" rgba="0.9 0.9 0.88 1" />
+              <geom type="mesh" class="visual" mesh="bottom_head_shell" rgba="0.9 0.9 0.88 1" />
+              <geom type="mesh" class="visual" mesh="head_eye_lens_l" rgba="0.9 0.9 0.88 1" />
+              <geom type="mesh" class="visual" mesh="head_antenna_left" rgba="0.9 0.9 0.88 1" />
+              <geom type="mesh" class="visual" mesh="head_antenna_right" rgba="0.9 0.9 0.88 1" />
               <geom type="mesh" class="visual" mesh="elec_xiao_esp32s3_sense" rgba="0.1 0.4 0.1 1" />
               <geom type="mesh" class="visual" mesh="elec_eye_rings_x2" rgba="0.1 0.4 0.1 1" />
               <geom type="mesh" class="visual" mesh="elec_max98357_speaker" rgba="0.1 0.4 0.1 1" />
@@ -164,19 +162,19 @@
       </body>
       <body name="bearing_roll" pos="0.00432 -0.0126 -0.0061" quat="0 -0.707107 -0.707107 0">
         <joint axis="0 0 1" name="right_hip_yaw" type="hinge" range="-0.523599 0.436332" class="chosen_actuator" />
-        <inertial pos="-6.336e-11 0.000715781 0.012162" mass="0.020938" fullinertia="1.9769e-06 1.60997e-06 1.096e-06 -0 -0 -2.39697e-08" />
+        <inertial pos="-6.336e-11 0.000715781 0.012162" mass="0.0187695" fullinertia="1.77215e-06 1.44323e-06 9.82487e-07 -0 -0 -2.14872e-08" />
         <geom type="mesh" class="visual" pos="-0.0126 -0.00144 0.009" quat="0 1 0 0" mesh="yaw2roll" material="yaw2roll_material" />
         <geom type="mesh" class="visual" pos="-0 -0 0.009" quat="0 -0.707107 0.707107 0" mesh="scs0009" material="xl330_material" name="servo_right_hip_roll" />
         <geom type="mesh" class="visual" pos="-0.0126 -0.00144 0.009" quat="0 1 0 0" mesh="bearing_roll" material="bearing_roll_material" />
         <geom type="mesh" class="visual" pos="-0 0.01188 0.009" quat="0.5 0.5 0.5 -0.5" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
         <body name="hip_l_2" pos="-0 0.01188 0.009" quat="0 0 0.707107 0.707107">
           <joint axis="0 0 1" name="right_hip_roll" type="hinge" range="-0.383972 0.383972" class="chosen_actuator" />
-          <inertial pos="0.0106668 1.16726e-08 -0.00597594" mass="0.00317964" fullinertia="2.29199e-07 3.0827e-07 1.73529e-07 2.66317e-13 1.03832e-07 -2.66317e-13" />
+          <inertial pos="0.0106668 1.16726e-08 -0.00597594" mass="0.00487842" fullinertia="3.51653e-07 4.72969e-07 2.6624e-07 4.08602e-13 1.59306e-07 -4.08602e-13" />
           <geom type="mesh" class="visual" pos="-0.0126 0 -0.01332" quat="0.707107 -0.707107 -0 -0" mesh="hip_l" material="hip_l_material" />
           <geom type="mesh" class="visual" pos="0.018 0 -0.01332" quat="0.5 0.5 -0.5 -0.5" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
           <body name="upper_leg_right" pos="0.018 0 -0.01332" quat="0.5 -0.5 0.5 -0.5">
             <joint axis="0 0 1" name="right_hip_pitch" type="hinge" range="-1.5708 1.5708" class="chosen_actuator" />
-            <inertial pos="-0.00487152 0.0164763 0.00968623" mass="0.0382709" fullinertia="6.94508e-06 4.26744e-06 8.15982e-06 1.81846e-06 -9.38267e-08 1.60217e-07" />
+            <inertial pos="-0.00487152 0.0164763 0.00968623" mass="0.0381501" fullinertia="6.92317e-06 4.25397e-06 8.13408e-06 1.81272e-06 -9.35307e-08 1.59711e-07" />
             <geom type="mesh" class="visual" pos="-0.01584 0.0257595 0.009" quat="0.5 0.5 -0.5 0.5" mesh="scs0009" material="xl330_material" name="servo_right_knee" />
             <geom type="mesh" class="visual" pos="-0.01584 0.0257595 0" quat="0 1 -0 -0" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
             <geom type="mesh" class="visual" pos="-0 -0 0.03132" quat="0.5 -0.5 0.5 0.5" mesh="upper_leg_rigidity_plate" material="upper_leg_rigidity_plate_material" />
@@ -184,13 +182,13 @@
             <geom type="mesh" class="visual" pos="-0 -0 0.009" quat="0.5 0.5 -0.5 0.5" mesh="scs0009" material="xl330_material" name="servo_right_hip_pitch" />
             <body name="leg_2" pos="-0.01584 0.0257595 -0.00288" quat="0 1 -0 -0">
               <joint axis="0 0 1" name="right_knee" type="hinge" range="-1.5708 1.5708" class="chosen_actuator" />
-              <inertial pos="-0.0229635 -1.0944e-10 -0.00686524" mass="0.0148019" fullinertia="7.66133e-07 1.86659e-06 1.54261e-06 3.55502e-13 -2.71961e-07 0" />
+              <inertial pos="-0.0229635 -1.0944e-10 -0.00686524" mass="0.0165415" fullinertia="8.56172e-07 2.08596e-06 1.72391e-06 3.97283e-13 -3.03923e-07 0" />
               <geom type="mesh" class="visual" pos="-0.03024 0 -0.00828" quat="0.5 -0.5 -0.5 -0.5" mesh="scs0009" material="xl330_material" name="servo_right_ankle" />
               <geom type="mesh" class="visual" pos="-0.0257595 -0.01584 0.02772" quat="0.707107 0 0.707107 -0" mesh="leg" material="leg_material" />
               <geom type="mesh" class="self_collision_only" pos="-0.0257595 -0.01584 0.02772" quat="0.707107 0 0.707107 -0" mesh="leg" material="leg_material" />
               <body name="ankle_right" pos="-0.03024 0 -0.01872" quat="0 -0.707107 -0.707107 0">
                 <joint axis="0 0 1" name="right_ankle" type="hinge" range="-1.5708 1.5708" class="chosen_actuator" />
-                <inertial pos="0.00443188 -0.0098987 -0.0112728" mass="0.00733979" fullinertia="7.49625e-07 1.41342e-06 9.80875e-07 2.59632e-08 -1.04507e-08 7.22551e-09" />
+                <inertial pos="0.00443188 -0.0098987 -0.0112728" mass="0.00750948" fullinertia="7.66956e-07 1.4461e-06 1.00355e-06 2.65634e-08 -1.06923e-08 7.39256e-09" />
                 <geom type="mesh" class="visual" pos="0.01584 0.0044805 -0.046584" quat="0.5 -0.5 0.5 0.5" mesh="ankle_right" material="ankle_right_material" />
                 <geom type="mesh" class="visual" pos="0.01584 0.0044805 -0.046584" quat="0.5 -0.5 0.5 0.5" mesh="sole_right" material="sole_right_material" />
                 <geom type="mesh" name="right_foot_collision" class="collision" pos="0.01584 0.0044805 -0.046584" quat="0.5 -0.5 0.5 0.5" mesh="sole_right" material="sole_right_material" />
@@ -207,18 +205,13 @@
   <asset>
     <mesh file="current/right_shell.stl" name="right_shell" scale="0.001 0.001 0.001" />
     <mesh file="current/banana_pcb_locker.stl" name="banana_pcb_locker" scale="0.001 0.001 0.001" />
-    <mesh file="current/top_head_shell.stl" name="top_head_shell" scale="0.001 0.001 0.001" />
     <mesh file="current/bearing_roll.stl" name="bearing_roll" scale="0.001 0.001 0.001" />
     <mesh file="current/ankle_left.stl" name="ankle_left" scale="0.001 0.001 0.001" />
     <mesh file="current/upper_leg_rigidity_plate.stl" name="upper_leg_rigidity_plate" scale="0.001 0.001 0.001" />
     <mesh file="current/neck_pitch.stl" name="neck_pitch" scale="0.001 0.001 0.001" />
-    <mesh file="current/noenoeil.stl" name="noenoeil" scale="0.001 0.001 0.001" />
-    <mesh file="current/face_part.stl" name="face_part" scale="0.001 0.001 0.001" />
     <mesh file="current/foot_right.stl" name="foot_right" scale="0.001 0.001 0.001" />
     <mesh file="../third_party/microduck_rl/src/mjlab_microduck/robot/microduck/assets/seeed_bearing__configuration__22x16x4.stl" name="seeed_bearing__configuration__22x16x4" scale="0.72 0.72 0.72" />
-    <mesh file="current/jaw_soft.stl" name="jaw_soft" scale="0.001 0.001 0.001" />
     <mesh file="current/hip_l.stl" name="hip_l" scale="0.001 0.001 0.001" />
-    <mesh file="current/bottom_head_shell.stl" name="bottom_head_shell" scale="0.001 0.001 0.001" />
     <mesh file="current/yaw2roll.stl" name="yaw2roll" scale="0.001 0.001 0.001" />
     <mesh file="../third_party/microduck_rl/src/mjlab_microduck/robot/microduck/assets/seeed_bearing__configuration_default.stl" name="seeed_bearing__configuration_default" scale="0.72 0.72 0.72" />
     <mesh file="current/ankle_right.stl" name="ankle_right" scale="0.001 0.001 0.001" />
@@ -232,9 +225,7 @@
     <mesh file="current/trunk_base.stl" name="trunk_base" scale="0.001 0.001 0.001" />
     <mesh file="current/left_shell.stl" name="left_shell" scale="0.001 0.001 0.001" />
     <mesh file="current/sole_right.stl" name="sole_right" scale="0.001 0.001 0.001" />
-    <mesh file="current/jaw.stl" name="jaw" scale="0.001 0.001 0.001" />
     <mesh file="current/leg.stl" name="leg" scale="0.001 0.001 0.001" />
-    <mesh file="current/soft_mouth_top.stl" name="soft_mouth_top" scale="0.001 0.001 0.001" />
     <mesh file="current/m12_lens_holder.stl" name="m12_lens_holder" scale="0.001 0.001 0.001" />
     <material name="seeed_bearing__configuration__22x16x4_material" rgba="0.811765 0.858824 0.898039 1" />
     <material name="right_shell_material" rgba="0.85098 0.85098 0.839216 1" />
@@ -275,6 +266,11 @@
     <material name="sole_right_material" rgba="0.956863 0.686275 0.137255 1" />
     <material name="foot_right_material" rgba="1 0.403922 0.121569 1" />
     <mesh name="scs0009" file="lib/scs0009_envelope.stl" scale="0.001 0.001 0.001" />
+    <mesh name="top_head_shell" file="current/top_head_shell.stl" scale="0.001 0.001 0.001" />
+    <mesh name="bottom_head_shell" file="current/bottom_head_shell.stl" scale="0.001 0.001 0.001" />
+    <mesh name="head_eye_lens_l" file="current/head_eye_lens_l.stl" scale="0.001 0.001 0.001" />
+    <mesh name="head_antenna_left" file="current/head_antenna_left.stl" scale="0.001 0.001 0.001" />
+    <mesh name="head_antenna_right" file="current/head_antenna_right.stl" scale="0.001 0.001 0.001" />
     <mesh name="elec_xiao_esp32s3_sense" file="current/elec_xiao_esp32s3_sense.stl" scale="0.001 0.001 0.001" />
     <mesh name="elec_eye_rings_x2" file="current/elec_eye_rings_x2.stl" scale="0.001 0.001 0.001" />
     <mesh name="elec_max98357_speaker" file="current/elec_max98357_speaker.stl" scale="0.001 0.001 0.001" />
