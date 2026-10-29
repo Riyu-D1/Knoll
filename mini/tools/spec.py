@@ -97,10 +97,12 @@ NON_PRINTED = ["xl330", "np_f970", "pcb__raspberry_pi_zero_2_w", "elec_rpi_robot
 # Thin-wall rule (check_parts.py P4): structural >= 1.2 mm, cosmetic >= 0.9 mm (10th percentile).
 COSMETIC_PARTS = ["left_shell", "right_shell", "banana_pcb_locker", "top_head_shell", "bottom_head_shell",
                   "face_part", "soft_mouth_top", "m12_lens_holder", "noenoeil", "jaw", "jaw_soft",
-                  "head_eye_lens_l", "head_antenna_left", "head_antenna_right"]
+                  "head_eye_lens_l", "head_eye_lens_r", "head_back_plate",
+                  "head_antenna_left", "head_antenna_right"]
 # Session-8A BDX head (tools/make_head_bdx.py; session-3 bdx_* names archived in parts/attic_bdx/).
 # Parts authored in the jaw_soft frame, loaded only when HEAD_MODE == "bdx".
 BDX_HEAD_PARTS = ["top_head_shell", "bottom_head_shell", "head_eye_lens_l",
+                  "head_eye_lens_r", "head_back_plate",
                   "head_antenna_left", "head_antenna_right"]
 # Extra (non-printed) electronics placeholders: (body, stl name in parts/current, mass_g). Session 3/5 fill.
 ELECTRONICS = [   # masses are ESTIMATES (unverified); the STL is optional (mass counts either way)

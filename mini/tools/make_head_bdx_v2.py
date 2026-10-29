@@ -11,7 +11,8 @@ Z = head-local lx (up +).  Exported STLs are permuted back to the jaw_soft frame
 
 Run:  ~/Knoll-cad-venv/bin/python tools/make_head_bdx_v2.py
 Output: parts/current/{top_head_shell,bottom_head_shell,head_eye_lens_l,
-        head_antenna_left,head_antenna_right,elec_eye_rings_x2}.stl
+        head_eye_lens_r,head_back_plate,head_antenna_left,head_antenna_right,
+        elec_eye_rings_x2}.stl
 """
 import sys
 from pathlib import Path
@@ -19,8 +20,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 import numpy as np
 from build123d import (
-    Axis, Box, BuildPart, BuildSketch, Cylinder, Mode, Plane, Polygon, Pos,
-    RectangleRounded, Rot, Sphere, export_stl, extrude, fillet, loft, offset,
+    Axis, Box, Cylinder, Cone, Plane, Pos,
+    RectangleRounded, Rot, Sphere, export_stl, extrude, fillet, loft,
 )
 import trimesh
 
@@ -30,7 +31,7 @@ CLOUD_NPY = Path("/tmp/refine_head_cloud.npy")
 
 WALL = 2.0
 CLEAR = 1.0
-TOL, ANG = 0.05, 0.1                     # STL export tolerances (process rules)
+TOL, ANG = 0.12, 0.30                    # STL export tolerances (loose: <25k faces)
 
 # ------------------------------------------------- invariant envelope (jaw_soft mm)
 LY_LO, LY_HI = -34.0, 33.5               # footprint width 67.5
@@ -59,26 +60,42 @@ ANT_LY, ANT_LZ = 29.0, 22.0
 ANT_TILT = 30.0                          # deg outward from vertical
 ANT_SOCK_D = 2.2
 ANT_ROD_D, ANT_ROD_L, ANT_IN = 2.0, 10.0, 4.0
+# tapered stalk: Ø4.4 base -> Ø1.5 tip, dome cap; tip stays below the old rod's
+ANT_STALK = dict(base_r=2.2, tip_r=0.75, h=8.0, dome=1.6, sink=3.0)
 
 # chamfer lines in (lz,lx) resp. (ly,lz) plane coords. Front/top-front same as v1.
-# Front-corner chamfers are tuned to NOT pierce the interior corner (v1's did).
-CH_FRONT = ((-56.0, -7.0), (-47.0, -15.0))
+# CH_FRONT stays inside the 2 mm wall: the old ((-56,-7),(-47,-15)) line crossed the
+# interior corner (lz -54, lx -13) and left a see-through sliver along the whole
+# front-bottom edge. This line keeps ~1 mm of wall at the interior corner.
+CH_FRONT = ((-56.0, -12.0), (-53.0, -15.0))
 CH_TOPF = ((-56.0, 22.0), (-50.0, 27.0))
 CH_CR_L = ((-30.5, -56.0), (-34.0, -52.0))
 CH_CR_R = ((30.5, -56.0), (33.5, -52.0))
 
-# neck opening: clean rounded rect + tab slot containing the swept floor-band
-# footprint (lx -17..-9) + 2 mm.  swept: ly[-40.04,23.82] x lz[-42.93,17.16],
-# with the -ly deep reach only over lz[-24.4,-1.4].
-OPEN_MAIN = ((-28.0, 24.0), (-43.0, 17.5), 8.0)   # (ly lo/hi, lz lo/hi, corner r)
-OPEN_TAB = ((-41.0, -24.0), (-27.0, 0.5), 3.0)
-OPEN_TOP = -9.0                          # main prism top: through floor + lower band
-OPEN_TAB_TOP = -12.4                     # tab slot pierces the floor band only
+# ---- removable bottom plate: flush 2 mm panel seated in a floor pocket ----
+# The plate closes the underside: only its rounded-rect neck/cable opening and
+# a PLATE_GAP gap line remain.  Swept crossing at lx -20..-16 needs
+# ly -38.9..23.2 x lz -41.5..15.8 -> the hole keeps >=1.0 mm margin.
+PLATE_LX = (-15.0, -13.0)                            # flush inside floor band
+PLATE_OUT = ((-44.0, 29.0), (-47.0, 21.5), 6.0)      # ((ly0,ly1),(lz0,lz1),r)
+PLATE_GAP = 0.8
+PLATE_HOLE = ((-38.8, 22.5), (-42.0, 16.3), 5.0)
+# two ledge strips left in the pocket carry the plate screws
+PLATE_LEDGE = ((-49.5, -43.0), (17.8, 23.5))         # lz strips across ly
+PLATE_SCREWS = [(-35.0, -44.5), (20.0, -44.5), (-35.0, 19.3), (20.0, 19.3)]
+PLATE_HOLE_D = 2.2                                   # screw clearance
 
-# -ly drafted bulge (lofted, tapered ends) so the tab slot stays inside material;
-# inner face keeps >=1 mm from the swept cloud over lx -15..-1, lz ~-27..+1.
+# -ly drafted bulge (lofted rounded-rect sections, tapered ends) so the tab
+# reach of the swept neck stays inside material; inner face keeps >=1 mm from
+# the swept cloud.  Rounded sections -> the outer cap reads as a smooth cheek
+# pod blended into the silhouette, not a wedged corner.
 BULGE_LZ = (-31.0, 5.0)                  # loft span; end sections merge into wall
 BULGE_MID = (-27.0, 1.0)                 # full-depth section band
+# (ly_lo, ly_hi, lx_lo, lx_hi, corner_r) in (ly,lx) section coords
+WO_FULL = (-45.5, -30.6, -15.0, 0.9, 4.0)
+WO_END = (-33.8, -32.4, -15.0, 0.9, 0.6)
+WI_FULL = (-43.5, -30.5, -15.0, 0.8, 3.0)
+WI_END = (-33.5, -32.2, -15.0, 0.8, 0.5)
 
 SEAM_PADS = [                            # screw bosses in the bottom rim (as v1)
     ("y", -1, -48.0, 4.5), ("y", -1, 28.0, 4.5),
@@ -113,25 +130,31 @@ def fused(parts):
     return cut
 
 
+def _rr_section(sec, z):
+    """rounded-rect (ly,lx) profile placed on the section plane at Y=lz."""
+    ly0, ly1, lx0, lx1, r = sec
+    pl = Plane(origin=(0, z, 0), x_dir=(1, 0, 0), y_dir=(0, 0, 1))
+    return pl.location * Pos((ly0 + ly1) / 2, (lx0 + lx1) / 2) * \
+        RectangleRounded(ly1 - ly0, lx1 - lx0, r)
+
+
 def _loft_poly(full, end):
-    """Loft a drafted bulge section: (ly,lx) polygons on sections at Y=lz;
-    end sections collapse into the flat wall so the bulge blends smoothly."""
-    secs = [end, full, full, end]
+    """Loft a drafted bulge section: rounded-rect (ly,lx) profiles on sections
+    at Y=lz; end sections collapse into the flat wall so the bulge blends
+    smoothly into the silhouette (no wedged corner)."""
     zs = [BULGE_LZ[0], BULGE_MID[0], BULGE_MID[1], BULGE_LZ[1]]
-    faces = []
-    for z, poly in zip(zs, secs):
-        pl = Plane(origin=(0, z, 0), x_dir=(1, 0, 0), y_dir=(0, 0, 1))
-        faces.append(pl.location * Polygon(*[(ly, lx) for lx, ly in poly]))
+    faces = [_rr_section(s, z) for s, z in zip([end, full, full, end], zs)]
     return loft(faces, ruled=True)
 
 
-# polygon sections in (lx,ly) - outer face drafted -46@-15 -> -35.5@+0.9,
-# inner face -44@-15 -> -33.5@+0.8: the swept -ly reach (max -40.04) stays
-# inside the cavity, so the -ly wall needs no notch; ends collapse into the wall
-WO_FULL = [(-15.0, -46.0), (-15.0, -30.6), (0.9, -30.6), (0.9, -35.5), (-1.0, -36.5)]
-WO_END = [(-15.0, -33.8), (-15.0, -32.4), (0.9, -32.4), (0.9, -33.6), (-1.0, -33.9)]
-WI_FULL = [(-15.0, -44.0), (-15.0, -30.5), (0.8, -30.5), (0.8, -33.5), (-1.0, -34.5)]
-WI_END = [(-15.0, -33.5), (-15.0, -32.2), (0.8, -32.2), (0.8, -33.4), (-1.0, -33.6)]
+def _sec_grow(sec, g):
+    """grow a (ly_lo, ly_hi, lx_lo, lx_hi, r) section outward by g."""
+    if g == 0.0:
+        return sec
+    ly0, ly1, lx0, lx1, r = sec
+    return (ly0 - g, ly1, lx0 - g, lx1 + g,
+            min(r + g, (ly1 - ly0 + g) / 2 - 0.05,
+                (lx1 - lx0 + 2 * g) / 2))
 
 
 def outer_solid(grow=0.0):
@@ -150,10 +173,7 @@ def outer_solid(grow=0.0):
     m = _chamfer_g(m, CH_TOPF, (1, 2), +1, g)
     m = _chamfer_g(m, CH_CR_L, (0, 1), +1, g)
     m = _chamfer_g(m, CH_CR_R, (0, 1), -1, g)
-    if g == 0.0:
-        m = m + _loft_poly(WO_FULL, WO_END)
-    else:
-        m = m + _loft_poly(_poly_grow(WO_FULL, g), _poly_grow(WO_END, g))
+    m = m + _loft_poly(_sec_grow(WO_FULL, g), _sec_grow(WO_END, g))
     return m
 
 
@@ -169,34 +189,6 @@ def _chamfer_g(part, line, coords, remove_side, grow):
     return part - (pl * Pos(0, 0, -450) * Box(900, 900, 900))
 
 
-def _poly_grow(poly, g):
-    """offset a convex (lx,ly) polygon outward by g: move each edge along its
-    outward normal, keep edge-edge intersections as the new vertices."""
-    if g == 0.0:
-        return poly
-    p = np.asarray(poly, float)
-    c = p.mean(axis=0)
-    out = []
-    n = len(p)
-    for i in range(n):
-        a, b = p[i], p[(i + 1) % n]
-        d = b - a; d = d / np.linalg.norm(d)
-        nrm = np.array([-d[1], d[0]])
-        if np.dot(nrm, (a - c)) < 0:
-            nrm = -nrm
-        out.append((a + nrm * g, b + nrm * g))
-    verts = []
-    for i in range(n):
-        (p0, p1), (q0, q1) = out[i - 1], out[i]
-        A = np.stack([p1 - p0, q0 - q1], axis=1)
-        if abs(np.linalg.det(A)) < 1e-9:
-            verts.append(p1)
-            continue
-        t = np.linalg.solve(A, q0 - p0)[0]
-        verts.append(p0 + t * (p1 - p0))
-    return verts
-
-
 def inner_void():
     f = Pos((INT_LY[0] + INT_LY[1]) / 2, (INT_LZ[0] + INT_LZ[1]) / 2, LX_FLOOR) * \
         RectangleRounded(INT_LY[1] - INT_LY[0], INT_LZ[1] - INT_LZ[0], 2.0)
@@ -209,17 +201,22 @@ def inner_void():
     return m + _loft_poly(WI_FULL, WI_END)
 
 
-def opening_prism():
-    f1 = Pos((OPEN_MAIN[0][0] + OPEN_MAIN[0][1]) / 2,
-             (OPEN_MAIN[1][0] + OPEN_MAIN[1][1]) / 2, LX_BOT - 2.0) * \
-        RectangleRounded(OPEN_MAIN[0][1] - OPEN_MAIN[0][0],
-                         OPEN_MAIN[1][1] - OPEN_MAIN[1][0], OPEN_MAIN[2])
-    f2 = Pos((OPEN_TAB[0][0] + OPEN_TAB[0][1]) / 2,
-             (OPEN_TAB[1][0] + OPEN_TAB[1][1]) / 2, LX_BOT - 2.0) * \
-        RectangleRounded(OPEN_TAB[0][1] - OPEN_TAB[0][0],
-                         OPEN_TAB[1][1] - OPEN_TAB[1][0], OPEN_TAB[2])
-    return extrude(f1, amount=OPEN_TOP - (LX_BOT - 2.0)) + \
-        extrude(f2, amount=OPEN_TAB_TOP - (LX_BOT - 2.0))
+def pocket_prism():
+    """floor pocket the closing plate drops into: plate outline + gap, cut
+    through the floor band, minus two ledge strips the plate screws land on."""
+    ly0, ly1 = PLATE_OUT[0][0] - PLATE_GAP, PLATE_OUT[0][1] + PLATE_GAP
+    lz0, lz1 = PLATE_OUT[1][0] - PLATE_GAP, PLATE_OUT[1][1] + PLATE_GAP
+    f = Pos((ly0 + ly1) / 2, (lz0 + lz1) / 2, PLATE_LX[0] - 0.5) * \
+        RectangleRounded(ly1 - ly0, lz1 - lz0, PLATE_OUT[2] + PLATE_GAP)
+    p = extrude(f, amount=PLATE_LX[1] - PLATE_LX[0] + 1.0)
+    for lzA, lzB in PLATE_LEDGE:
+        p = p - Pos((ly0 + ly1) / 2, (lzA + lzB) / 2, PLATE_LX[0] - 0.5) * \
+            Box(ly1 - ly0, lzB - lzA, PLATE_LX[1] - PLATE_LX[0] + 1.0)
+    # -ly channel: the swept tab reach (ly -36 at lx -13..-9, lz -22..-3) passes
+    # under the bulge; notch the wall corner just above the pocket.  Kept inside
+    # the bulge's outer face (~-44) so it never shows on the silhouette.
+    p = p + Pos(-37.0, -12.5, -12.3) * Box(13.0, 27.0, 2.4)
+    return p
 
 
 # ------------------------------------------------------------------ main build
@@ -230,8 +227,8 @@ def build_shell():
     shell = outer - inner
     print("    shell volume %.1f cm3" % (shell.volume / 1000))
 
-    print("[2] neck opening (rounded rect + tab slot)")
-    shell = shell - opening_prism()
+    print("[2] floor pocket for the removable closing plate")
+    shell = shell - pocket_prism()
 
     print("[3] face: eye bezels + recessed rings, bores, lamp, mic")
     for ly in EYE_LY:
@@ -296,7 +293,7 @@ def build_shell():
                             (np.sin(tilt), 0.0, np.cos(tilt))))
     shell = shell - fused(sock)
 
-    print("[6] seam pads + chassis tabs")
+    print("[6] seam pads + chassis tabs + plate screw studs")
     for axis_, sgn, c_, w_ in SEAM_PADS:
         if axis_ == "y":
             x0 = (INT_LY[0] - 0.6) if sgn < 0 else (INT_LY[1] - 4.0)
@@ -308,15 +305,15 @@ def build_shell():
         # overlap 0.9 into the back wall so the union is real, not tangent
         shell = shell + Pos(ty, (32.9 + LZ_HI - WALL + 0.9) / 2, -2.0) * \
             Box(9.0, (LZ_HI - WALL + 0.9) - 32.9, 8.0)
+    # (plate screws land on the pocket ledges cut in [2])
 
-    print("[7] 0.4x0.3 panel-line groove at panel foot")
-    ring = Pos((PANEL_LY[0] + PANEL_LY[1]) / 2, (PANEL_LZ[0] + PANEL_LZ[1]) / 2,
-               LX_TOP - 0.01) * \
-        RectangleRounded(PANEL_LY[1] - PANEL_LY[0] + 0.8,
-                         PANEL_LZ[1] - PANEL_LZ[0] + 0.8, 2.4)
-    ring = ring - Pos((PANEL_LY[0] + PANEL_LY[1]) / 2,
-                      (PANEL_LZ[0] + PANEL_LZ[1]) / 2, LX_TOP - 0.01) * \
-        RectangleRounded(PANEL_LY[1] - PANEL_LY[0], PANEL_LZ[1] - PANEL_LZ[0], 2.0)
+    print("[7] closed panel-line frame on the top face (0.4 wide x 0.3 deep)")
+    # deliberate symmetric detail: a closed rounded-rect groove following the
+    # shell outline, inset 3.5 mm from the walls - replaces the old open-ended L
+    ring = Pos((LY_LO + LY_HI) / 2, (LZ_LO + LZ_HI) / 2, LX_TOP - 0.31) * \
+        RectangleRounded(LY_HI - LY_LO - 7.0, LZ_HI - LZ_LO - 7.0, 3.0)
+    ring = ring - Pos((LY_LO + LY_HI) / 2, (LZ_LO + LZ_HI) / 2, LX_TOP - 0.31) * \
+        RectangleRounded(LY_HI - LY_LO - 7.8, LZ_HI - LZ_LO - 7.8, 2.6)
     shell = shell - extrude(ring, amount=0.4)
 
     print("[8] split + conformal lip")
@@ -343,6 +340,9 @@ def build_shell():
                 cyl_dir(PILOT_D, 16.0, (c_, sgn * abs(zw), SPLIT - 1.5), (0, sgn, 0)))
     for ty, tx in CHASSIS_TABS:
         pilots.append(cyl_dir(PILOT_D, 12.0, (ty, LZ_HI - 1.5, tx), (0, 1, 0)))
+    for sy, sz in PLATE_SCREWS:
+        # plate screw pilots into the pocket ledges
+        pilots.append(cyl_dir(PILOT_D, 6.0, (sy, sz, -12.5), (0, 0, 1)))
     pc = fused(pilots)
     top = top - pc
     bottom = bottom - pc
@@ -353,23 +353,46 @@ def build_shell():
 
 def small_parts():
     parts = {}
+    st = ANT_STALK
     boss_top = LX_TOP + 3.5                     # boss upper surface
     for sgn, nm in ((-1, "head_antenna_right"), (+1, "head_antenna_left")):
-        rod = Cylinder(ANT_ROD_D / 2, ANT_ROD_L) + \
-            Pos(0, 0, ANT_ROD_L / 2 - 0.3) * Sphere(ANT_ROD_D / 2)
-        rod = Pos(0, 0, ANT_ROD_L / 2 - ANT_IN) * rod
+        # tapered stalk: base Ø4.4 -> tip Ø1.5 with a dome cap, sunk into the boss
+        rod = Pos(0, 0, 0) * Cone(st["base_r"], st["tip_r"], st["h"]) + \
+            Pos(0, 0, st["h"] / 2 - 0.1) * Sphere(st["dome"] / 2)
+        rod = Pos(0, 0, st["h"] / 2 - st["sink"]) * rod
         rod = Rot(0, -sgn * ANT_TILT, 0) * rod   # tip leans outward in +-ly
         rod = Pos(sgn * ANT_LY, ANT_LZ, boss_top - 0.2) * rod
         tip_lx = boss_top - 0.2 + \
-            (ANT_ROD_L + ANT_ROD_D / 2 - ANT_IN) * np.cos(np.radians(ANT_TILT))
+            (st["h"] + st["dome"] / 2 - st["sink"]) * np.cos(np.radians(ANT_TILT))
         parts[nm] = rod
         print("    %s tip lx=%.1f -> world z %.1f" % (nm, tip_lx, JAW_SOFT_Z + tip_lx))
     # left-eye lens plug: Ø15.3 plug + Ø19.6 inner flange (flange inside, +lz)
     plug = Pos(0, 0, 0) * Cylinder(EYE_BORE / 2 - 0.35, 5.8)
     flan = Pos(0, 0, 3.6) * Cylinder(EYE_BORE / 2 + 1.8, 1.4)
     lens = Rot(-90, 0, 0) * (plug + flan)
-    lens = Pos(EYE_LY[1], -56.0, EYE_LX) * lens
-    parts["head_eye_lens_l"] = lens
+    parts["head_eye_lens_l"] = Pos(EYE_LY[1], -56.0, EYE_LX) * lens
+    # right/camera eye: same outer profile as an annular ring, Ø10.4 bore so the
+    # camera aperture stays open (camera axis unchanged at ly=0)
+    ring_l = (plug + flan) - Pos(0, 0, 1.0) * Cylinder(CAM_HOLE / 2 + 0.2, 9.0)
+    parts["head_eye_lens_r"] = Pos(EYE_LY[0], -56.0, EYE_LX) * \
+        Rot(-90, 0, 0) * ring_l
+    # bottom closing plate: 2 mm flush panel seating in the floor pocket;
+    # rounded-rect neck/cable hole sized to the real swept crossing + ~1 mm.
+    plate_f = Pos((PLATE_OUT[0][0] + PLATE_OUT[0][1]) / 2,
+                  (PLATE_OUT[1][0] + PLATE_OUT[1][1]) / 2, PLATE_LX[0]) * \
+        RectangleRounded(PLATE_OUT[0][1] - PLATE_OUT[0][0],
+                         PLATE_OUT[1][1] - PLATE_OUT[1][0], PLATE_OUT[2])
+    plate = extrude(plate_f, amount=PLATE_LX[1] - PLATE_LX[0])
+    hole_f = Pos((PLATE_HOLE[0][0] + PLATE_HOLE[0][1]) / 2,
+                 (PLATE_HOLE[1][0] + PLATE_HOLE[1][1]) / 2, PLATE_LX[0] - 0.5) * \
+        RectangleRounded(PLATE_HOLE[0][1] - PLATE_HOLE[0][0],
+                         PLATE_HOLE[1][1] - PLATE_HOLE[1][0], PLATE_HOLE[2])
+    plate = plate - extrude(hole_f, amount=PLATE_LX[1] - PLATE_LX[0] + 1.0)
+    for sy, sz in PLATE_SCREWS:
+        plate = plate - cyl_dir(PLATE_HOLE_D, 5.0, (sy, sz, -14.0), (0, 0, 1))
+        plate = plate - Pos(sy, sz, PLATE_LX[0] + 0.35) * \
+            Cone(1.8, PLATE_HOLE_D / 2, 0.8)                      # countersink
+    parts["head_back_plate"] = plate
     # LED ring pair placeholder (same as v1)
     ring1 = Pos(EYE_LY[1], -45.0, EYE_LX) * Rot(90, 0, 0) * \
         (Cylinder(12.5, 2.4) - Cylinder(9.5, 4))
@@ -427,6 +450,7 @@ def main():
     clearance_report(out["top_head_shell"], out["bottom_head_shell"])
     tot = sum(out[k].volume for k in
               ("top_head_shell", "bottom_head_shell", "head_eye_lens_l",
+               "head_eye_lens_r", "head_back_plate",
                "head_antenna_left", "head_antenna_right"))
     print("    printed head volume %.1f cm3" % (tot / 1000))
 
