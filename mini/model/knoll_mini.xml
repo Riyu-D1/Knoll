@@ -64,16 +64,13 @@
   <worldbody>
     <body name="trunk_base" pos="0 0 0.07970" quat="1 0 0 0" childclass="microduck">
       <freejoint name="trunk_base_freejoint" />
-      <inertial pos="-0.0162959 -1.94996e-05 0.00201646" mass="0.123909" fullinertia="3.99724e-05 4.70516e-05 3.71919e-05 2.3102e-08 -6.67142e-06 4.26982e-08" />
+      <inertial pos="-0.0162959 -1.94996e-05 0.00201646" mass="0.126639" fullinertia="4.08531e-05 4.80882e-05 3.80112e-05 2.36109e-08 -6.8184e-06 4.36389e-08" />
       <geom type="mesh" class="visual" pos="0.00432 0.0126 -0.0036" quat="1 -0 -0 0" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
-      <geom type="mesh" class="visual" pos="0.00288 -0.00036 -0.0126" quat="0.707107 0 0 0.707107" mesh="right_shell" material="right_shell_material" />
-      <geom type="mesh" class="visual" pos="0.003024 0 -0.0126155" quat="0.707107 -0 0 0.707107" mesh="banana_pcb_locker" material="banana_pcb_locker_material" />
       <geom type="mesh" class="visual" pos="0.00288 -0 -0.0126" quat="0.707107 -0 -0 0.707107" mesh="trunk_base" material="trunk_base_material" />
       <geom type="mesh" class="visual" pos="0.00432 0.0126 0.00828" quat="0 -0.707107 0 -0.707107" mesh="scs0009" material="xl330_material" name="servo_left_hip_yaw" />
       <geom type="mesh" class="visual" pos="0.00288 -0 -0.0126155" quat="0.707107 -0 -0 0.707107" mesh="power_support" material="power_support_material" />
       <geom type="mesh" class="self_collision_only" pos="0.00288 -0 -0.0126155" quat="0.707107 -0 -0 0.707107" mesh="power_support" material="power_support_material" />
       <geom type="mesh" class="visual" pos="0.00432 -0.0126 0.00828" quat="0 -0.707107 0 -0.707107" mesh="scs0009" material="xl330_material" name="servo_right_hip_yaw" />
-      <geom type="mesh" class="visual" pos="0.00288 -0 -0.0126565" quat="0.707107 -0 -0 0.707107" mesh="left_shell" material="left_shell_material" />
       <geom type="mesh" class="visual" pos="0.00432 -0.0126 -0.0036" quat="1 -0 -0 0" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
       <site group="3" name="imu" pos="-0.01512 4.78151e-05 -0.0105828" quat="1 -0 -0 -0" />
       <body name="yaw2roll" pos="0.00432 0.0126 -0.0061" quat="0 -0.707107 -0.707107 -0">
@@ -135,23 +132,21 @@
             <geom type="mesh" class="visual" pos="0.01296 0 0.01044" quat="0.707107 0 -0.707107 -0" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material" />
             <body name="jaw_soft" pos="-0.012888 0 0.01044" quat="0.707107 0 -0.707107 -0">
               <joint axis="0 0 1" name="head_roll" type="hinge" range="-0.436332 0.436332" class="chosen_actuator" />
-              <inertial pos="0.00331577 0.000864338 -0.0233828" mass="0.0728043" fullinertia="6.41427e-05 5.08046e-05 2.99673e-05 -1.2642e-07 1.31391e-06 8.367e-07" />
-              <geom type="mesh" class="visual" pos="-0.00324 -6.5792e-05 -0.012816" quat="0.5 0.5 0.5 0.5" mesh="face_part" material="face_part_material" />
-              <geom type="mesh" class="visual" pos="-0.003312 0 -0.0129597" quat="0.5 0.5 0.5 0.5" mesh="jaw_soft" material="jaw_soft_material" />
+              <inertial pos="0.00331577 0.000864338 -0.0233828" mass="0.0804828" fullinertia="7.09077e-05 5.61628e-05 3.31279e-05 -1.39754e-07 1.45248e-06 9.24945e-07" />
               <geom type="mesh" class="visual" pos="-0.00324 -0 -0.01296" quat="0.5 0.5 0.5 0.5" mesh="motor_support" material="motor_support_material" />
-              <geom type="mesh" class="visual" pos="-0.00324 -0 -0.01296" quat="0.5 0.5 0.5 0.5" mesh="top_head_shell" material="top_head_shell_material" />
               <geom type="mesh" class="visual" pos="0 0 0.01044" quat="0.5 -0.5 -0.5 -0.5" mesh="scs0009" material="xl330_material" name="servo_head_roll" />
               <geom type="mesh" class="visual" pos="0.002304 -0.0288 -0.01296" quat="0.5 -0.5 0.5 0.5" mesh="seeed_bearing__configuration_default" material="seeed_bearing__configuration_default_material" />
-              <geom type="mesh" class="visual" pos="-0.00302451 1.27987e-08 -0.0130186" quat="0.5 0.5 0.5 0.5" mesh="soft_mouth_top" material="soft_mouth_top_material" />
-              <geom type="mesh" class="visual" pos="-0.00324 -6.5792e-05 -0.012816" quat="0.5 0.5 0.5 0.5" mesh="noenoeil" material="noenoeil_material" />
-              <geom type="mesh" class="visual" pos="-0.00324 -0 -0.01296" quat="0.5 0.5 0.5 0.5" mesh="jaw" material="jaw_material" />
-              <geom type="mesh" class="visual" pos="-0.003096 -0 -0.01296" quat="0.5 0.5 0.5 0.5" mesh="bottom_head_shell" material="bottom_head_shell_material" />
               <geom type="mesh" class="visual" pos="0.01116 -6.5792e-05 -0.0400176" quat="0.5 -0.5 0.5 -0.5" mesh="m12_lens_holder" material="m12_lens_holder_material" />
               <site group="3" name="head_camera" pos="0.01116 -6.5792e-05 -0.052776" quat="0.707107 -0 0.707107 0" />
               <camera name="head_camera" pos="0.01116 -6.5792e-05 -0.052776" quat="0 0 -1 0" />
               <site group="3" name="tof" pos="0.00972 0.0161342 -0.052776" quat="0.707107 -0 0.707107 0" />
               <site group="3" name="head_imu" pos="0.0109673 7.99697e-05 -0.0367632" quat="1 0 -0 0" />
               <site group="3" name="mouth_tip" pos="-0.0058272 -0 -0.0559716" quat="0.704015 -0 0.710185 0" />
+              <geom type="mesh" class="visual" mesh="top_head_shell" rgba="0.9 0.9 0.88 1" />
+              <geom type="mesh" class="visual" mesh="bottom_head_shell" rgba="0.9 0.9 0.88 1" />
+              <geom type="mesh" class="visual" mesh="head_eye_lens_l" rgba="0.9 0.9 0.88 1" />
+              <geom type="mesh" class="visual" mesh="head_antenna_left" rgba="0.9 0.9 0.88 1" />
+              <geom type="mesh" class="visual" mesh="head_antenna_right" rgba="0.9 0.9 0.88 1" />
               <geom type="mesh" class="visual" mesh="elec_xiao_esp32s3_sense" rgba="0.1 0.4 0.1 1" />
               <geom type="mesh" class="visual" mesh="elec_eye_rings_x2" rgba="0.1 0.4 0.1 1" />
               <geom type="mesh" class="visual" mesh="elec_max98357_speaker" rgba="0.1 0.4 0.1 1" />
@@ -202,23 +197,23 @@
           </body>
         </body>
       </body>
+      <geom type="mesh" class="visual" mesh="trunk_shell" rgba="0.8 0.5 0.2 1" />
+      <geom type="mesh" class="visual" mesh="trunk_cover_left" rgba="0.8 0.5 0.2 1" />
+      <geom type="mesh" class="visual" mesh="trunk_cover_rear" rgba="0.8 0.5 0.2 1" />
+      <geom type="mesh" class="visual" mesh="elec_battery_2s_450" rgba="0.1 0.4 0.1 1" />
+      <geom type="mesh" class="visual" mesh="elec_ubec_6v_5a" rgba="0.1 0.4 0.1 1" />
+      <geom type="mesh" class="visual" mesh="elec_bno085" rgba="0.1 0.4 0.1 1" />
+      <geom type="mesh" class="visual" mesh="elec_bus_hub_and_wiring" rgba="0.1 0.4 0.1 1" />
     </body>
   </worldbody>
   <asset>
-    <mesh file="current/right_shell.stl" name="right_shell" scale="0.001 0.001 0.001" />
-    <mesh file="current/banana_pcb_locker.stl" name="banana_pcb_locker" scale="0.001 0.001 0.001" />
-    <mesh file="current/top_head_shell.stl" name="top_head_shell" scale="0.001 0.001 0.001" />
     <mesh file="current/bearing_roll.stl" name="bearing_roll" scale="0.001 0.001 0.001" />
     <mesh file="current/ankle_left.stl" name="ankle_left" scale="0.001 0.001 0.001" />
     <mesh file="current/upper_leg_rigidity_plate.stl" name="upper_leg_rigidity_plate" scale="0.001 0.001 0.001" />
     <mesh file="current/neck_pitch.stl" name="neck_pitch" scale="0.001 0.001 0.001" />
-    <mesh file="current/noenoeil.stl" name="noenoeil" scale="0.001 0.001 0.001" />
-    <mesh file="current/face_part.stl" name="face_part" scale="0.001 0.001 0.001" />
     <mesh file="current/foot_right.stl" name="foot_right" scale="0.001 0.001 0.001" />
     <mesh file="../third_party/microduck_rl/src/mjlab_microduck/robot/microduck/assets/seeed_bearing__configuration__22x16x4.stl" name="seeed_bearing__configuration__22x16x4" scale="0.72 0.72 0.72" />
-    <mesh file="current/jaw_soft.stl" name="jaw_soft" scale="0.001 0.001 0.001" />
     <mesh file="current/hip_l.stl" name="hip_l" scale="0.001 0.001 0.001" />
-    <mesh file="current/bottom_head_shell.stl" name="bottom_head_shell" scale="0.001 0.001 0.001" />
     <mesh file="current/yaw2roll.stl" name="yaw2roll" scale="0.001 0.001 0.001" />
     <mesh file="../third_party/microduck_rl/src/mjlab_microduck/robot/microduck/assets/seeed_bearing__configuration_default.stl" name="seeed_bearing__configuration_default" scale="0.72 0.72 0.72" />
     <mesh file="current/ankle_right.stl" name="ankle_right" scale="0.001 0.001 0.001" />
@@ -230,11 +225,8 @@
     <mesh file="current/sole_left.stl" name="sole_left" scale="0.001 0.001 0.001" />
     <mesh file="current/upper_leg_left.stl" name="upper_leg_left" scale="0.001 0.001 0.001" />
     <mesh file="current/trunk_base.stl" name="trunk_base" scale="0.001 0.001 0.001" />
-    <mesh file="current/left_shell.stl" name="left_shell" scale="0.001 0.001 0.001" />
     <mesh file="current/sole_right.stl" name="sole_right" scale="0.001 0.001 0.001" />
-    <mesh file="current/jaw.stl" name="jaw" scale="0.001 0.001 0.001" />
     <mesh file="current/leg.stl" name="leg" scale="0.001 0.001 0.001" />
-    <mesh file="current/soft_mouth_top.stl" name="soft_mouth_top" scale="0.001 0.001 0.001" />
     <mesh file="current/m12_lens_holder.stl" name="m12_lens_holder" scale="0.001 0.001 0.001" />
     <material name="seeed_bearing__configuration__22x16x4_material" rgba="0.811765 0.858824 0.898039 1" />
     <material name="right_shell_material" rgba="0.85098 0.85098 0.839216 1" />
@@ -275,12 +267,24 @@
     <material name="sole_right_material" rgba="0.956863 0.686275 0.137255 1" />
     <material name="foot_right_material" rgba="1 0.403922 0.121569 1" />
     <mesh name="scs0009" file="lib/scs0009_envelope.stl" scale="0.001 0.001 0.001" />
+    <mesh name="top_head_shell" file="current/top_head_shell.stl" scale="0.001 0.001 0.001" />
+    <mesh name="bottom_head_shell" file="current/bottom_head_shell.stl" scale="0.001 0.001 0.001" />
+    <mesh name="head_eye_lens_l" file="current/head_eye_lens_l.stl" scale="0.001 0.001 0.001" />
+    <mesh name="head_antenna_left" file="current/head_antenna_left.stl" scale="0.001 0.001 0.001" />
+    <mesh name="head_antenna_right" file="current/head_antenna_right.stl" scale="0.001 0.001 0.001" />
+    <mesh name="elec_battery_2s_450" file="current/elec_battery_2s_450.stl" scale="0.001 0.001 0.001" />
+    <mesh name="elec_ubec_6v_5a" file="current/elec_ubec_6v_5a.stl" scale="0.001 0.001 0.001" />
+    <mesh name="elec_bno085" file="current/elec_bno085.stl" scale="0.001 0.001 0.001" />
+    <mesh name="elec_bus_hub_and_wiring" file="current/elec_bus_hub_and_wiring.stl" scale="0.001 0.001 0.001" />
     <mesh name="elec_xiao_esp32s3_sense" file="current/elec_xiao_esp32s3_sense.stl" scale="0.001 0.001 0.001" />
     <mesh name="elec_eye_rings_x2" file="current/elec_eye_rings_x2.stl" scale="0.001 0.001 0.001" />
     <mesh name="elec_max98357_speaker" file="current/elec_max98357_speaker.stl" scale="0.001 0.001 0.001" />
     <mesh name="elec_vl53l0x" file="current/elec_vl53l0x.stl" scale="0.001 0.001 0.001" />
     <mesh name="elec_buck_5v" file="current/elec_buck_5v.stl" scale="0.001 0.001 0.001" />
     <mesh name="neck_frame" file="current/neck_frame.stl" scale="0.001 0.001 0.001" />
+    <mesh name="trunk_shell" file="current/trunk_shell.stl" scale="0.001 0.001 0.001" />
+    <mesh name="trunk_cover_left" file="current/trunk_cover_left.stl" scale="0.001 0.001 0.001" />
+    <mesh name="trunk_cover_rear" file="current/trunk_cover_rear.stl" scale="0.001 0.001 0.001" />
   </asset>
   <actuator>
     <position class="chosen_actuator" name="left_hip_yaw" joint="left_hip_yaw" />

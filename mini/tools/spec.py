@@ -97,7 +97,8 @@ NON_PRINTED = ["xl330", "np_f970", "pcb__raspberry_pi_zero_2_w", "elec_rpi_robot
 # Thin-wall rule (check_parts.py P4): structural >= 1.2 mm, cosmetic >= 0.9 mm (10th percentile).
 COSMETIC_PARTS = ["left_shell", "right_shell", "banana_pcb_locker", "top_head_shell", "bottom_head_shell",
                   "face_part", "soft_mouth_top", "m12_lens_holder", "noenoeil", "jaw", "jaw_soft",
-                  "head_eye_lens_l", "head_antenna_left", "head_antenna_right"]
+                  "head_eye_lens_l", "head_antenna_left", "head_antenna_right",
+                  "trunk_shell", "trunk_cover_left", "trunk_cover_rear"]
 # Session-8A BDX head (tools/make_head_bdx.py; session-3 bdx_* names archived in parts/attic_bdx/).
 # Parts authored in the jaw_soft frame, loaded only when HEAD_MODE == "bdx".
 BDX_HEAD_PARTS = ["top_head_shell", "bottom_head_shell", "head_eye_lens_l",
@@ -116,9 +117,13 @@ ELECTRONICS = [   # masses are ESTIMATES (unverified); the STL is optional (mass
     ("jaw_soft", "elec_buck_5v", 2.0),
 ]
 # Parts authored directly in a body's frame (mm), treated as printed: (body, stl name in parts/current).
-EXTRA_PARTS = [("neck", "neck_frame")]   # session 2: merge_body_frame.py --hull, replaces neck
+EXTRA_PARTS = [("neck", "neck_frame"),   # session 2: merge_body_frame.py --hull, replaces neck
+               ("trunk_base", "trunk_shell"),        # session C: designed trunk enclosure
+               ("trunk_base", "trunk_cover_left"),   # session C: left access panel
+               ("trunk_base", "trunk_cover_rear")]   # session C: rear battery bay cover
 # Upstream printed parts no longer used (their STL moves to parts/attic/). Skipped by assembly + MJCF.
-REMOVED_PARTS = ["neck"]  # session 2: two tiny XL330 plates -> one SCS0009 bracket (neck_frame)
+REMOVED_PARTS = ["neck",   # session 2: two tiny XL330 plates -> one SCS0009 bracket (neck_frame)
+                 "left_shell", "right_shell", "banana_pcb_locker"]   # session C: -> attic_refine/
 PETG_DENSITY_G_CM3 = 1.27
 PRINT_FILL_FACTOR = 0.55   # 3 walls + 20 % infill, approx fraction of solid mass
 
