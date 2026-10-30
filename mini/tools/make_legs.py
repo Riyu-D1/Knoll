@@ -361,6 +361,21 @@ def _corridors_one(item, new_shell_bounds, step=10.0):
         return None
     return union_all(out)
 
+def sweep_item_local(item, src_mesh_world, src_body, joint, lo, hi, step=15.0):
+    """src mesh swept through `joint` range, expressed in `item`'s local frame.
+    Used to pre-carve clearance voids (e.g. knee servo inside the shin cup)."""
+    outs = []
+    for a in sorted(set(np.r_[np.arange(lo, hi, step), hi].round(2))):
+        D = _body_displacements({joint: a})
+        R = np.linalg.inv(D.get(item.body, np.eye(4))) @ D.get(src_body, np.eye(4))
+        w = src_mesh_world.copy(); w.apply_transform(R)
+        outs.append(to_local(item, w))
+    return union_all(outs)
+
+def grow_mesh(m, g=1.0):
+    return union_all([m.copy().apply_transform(translation_matrix(d))
+                      for d in [(g,0,0),(-g,0,0),(0,g,0),(0,-g,0),(0,0,g),(0,0,-g)]])
+
 def corridors_local(items, new_world_bounds, grow=0.3, step=5.0):
     """union of per-instance corridors, in the shared STL's local frame."""
     cors = [c for c in (_corridors_one(it, new_world_bounds, step) for it in items)
@@ -374,6 +389,220 @@ def corridors_local(items, new_world_bounds, grow=0.3, step=5.0):
             [u.copy().apply_transform(translation_matrix(d))
              for d in [(g,0,0),(-g,0,0),(0,g,0),(0,-g,0),(0,0,g),(0,0,-g)]], engine=MAN)
     return u
+
+# ----- analytic clearance keep-out (convex-hull sweep cutters) ---------------
+_HULLV = {}
+def _hull_verts(item):
+    """item's convex-hull verts in world at q=0 (cached per item identity)."""
+    k = id(item)
+    if k not in _HULLV:
+        _HULLV[k] = np.asarray(item.mesh_obj.convex_hull.vertices)
+    return _HULLV[k]
+
+def _hull_of(pts):
+    if len(pts) < 4:
+        return None
+    try:
+        h = trimesh.convex.convex_hull(np.asarray(pts))
+        if h is not None and h.is_volume and h.volume > 0.3:
+            return h
+    except Exception:
+        pass
+    return None
+
+def _grow_convex(h, g):
+    """grow a convex hull by ~g mm (hull of verts offset per axis -> still convex)."""
+    if h is None or g <= 0:
+        return h
+    vs = h.vertices
+    pts = np.vstack([vs + np.array(d) for d in
+                     [(g,0,0),(-g,0,0),(0,g,0),(0,-g,0),(0,0,g),(0,0,-g)]])
+    return _hull_of(pts) or h
+
+def _to_local_pts(item, wpts):
+    return (np.linalg.inv(item.T) @ np.hstack([wpts, np.ones((len(wpts), 1))]).T).T[:, :3]
+
+_JWORLD = None
+def _joint_anchor_local(me, jn):
+    """joint anchor point in me's local frame (from assembly.joints_world)."""
+    global _JWORLD
+    if _JWORLD is None:
+        from assembly import joints_world
+        _JWORLD = joints_world()
+    anchor = _JWORLD[jn][0]
+    return (np.linalg.inv(me.T) @ np.append(anchor, 1))[:3]
+
+def _pose_arc(tt):
+    """minimal arc (start, end; end-start <= 2pi) covering angles tt in [-pi,pi],
+    found by complementing the largest gap on the circle."""
+    tt = np.sort(tt)
+    if len(tt) < 2:
+        c = float(tt[0]) if len(tt) else 0.0
+        return c, c + 0.02
+    gaps = np.diff(tt)
+    wg = tt[0] + 2 * np.pi - tt[-1]
+    k = int(np.argmax(np.r_[gaps, wg]))
+    if k == len(gaps):
+        return float(tt[0]), float(tt[-1])
+    return float(tt[k + 1]), float(tt[k] + 2 * np.pi)
+
+def _arc_union(arcs):
+    """smallest arc covering the union of arcs (start, end) on the circle.
+    Returns (th0, th1) or None when the union wraps the whole circle."""
+    T = 2 * np.pi
+    iv = []
+    for s, e in arcs:
+        l = max(e - s, 0.02)
+        if l >= T:
+            return None
+        s %= T
+        iv.append((s, min(s + l, T)))
+        if s + l > T:
+            iv.append((0.0, s + l - T))
+    iv.sort()
+    mg = []
+    for a, b in iv:
+        if mg and a <= mg[-1][1] + 1e-9:
+            mg[-1][1] = max(mg[-1][1], b)
+        else:
+            mg.append([a, b])
+    gaps = [mg[(i + 1) % len(mg)][0] + (T if i == len(mg) - 1 else 0) - mg[i][1]
+            for i in range(len(mg))]
+    k = int(np.argmax(gaps))
+    if gaps[k] < 1e-6:
+        return None
+    th0 = mg[(k + 1) % len(mg)][0]
+    th1 = mg[k][1]
+    if th1 <= th0:
+        th1 += T
+    return th0, th1
+
+def _sector_prism(axis_pt, axis_dir, r0, r1, th0, th1, z0, z1, n=None):
+    """cylindrical sector prism about an axis: radial band [r0,r1], angular span
+    [th0,th1] (rad, local frame of the axis), axial extent [z0,z1]. Built as a
+    closed solid mesh (2 cylindrical walls + 2 angular faces + 2 axial caps).
+    A full 2pi span yields a closed annular band."""
+    span = th1 - th0
+    full = span >= 2 * np.pi - 1e-3
+    if full:
+        th0, th1, span = 0.0, 2 * np.pi, 2 * np.pi
+    if n is None:
+        n = max(9, int(np.ceil(span / (np.pi / 24))) + 1)
+    th = np.linspace(th0, th1, n)
+    verts, faces = [], []
+    idx = {}
+    for i, t in enumerate(th):
+        cs, sn = np.cos(t), np.sin(t)
+        for j, (r, z) in enumerate([(r0, z0), (r0, z1), (r1, z0), (r1, z1)]):
+            idx[i, j] = len(verts)
+            verts.append(axis_pt + r * cs * axis_dir[1] + r * sn * axis_dir[2]
+                         + z * axis_dir[0])
+    # quad walls between consecutive thetas: r0, r1, z0, z1
+    for i in range(len(th) - 1):
+        for a, b in [(0, 1), (2, 3), (0, 2), (1, 3)]:
+            faces += [[idx[i, a], idx[i + 1, a], idx[i + 1, b]],
+                      [idx[i, a], idx[i + 1, b], idx[i, b]]]
+    # end caps: quad perimeter order is 0-1-3-2 (r0 edge, z1 edge, r1, z0)
+    if not full:
+        for i in (0, len(th) - 1):
+            f = [idx[i, 0], idx[i, 1], idx[i, 2], idx[i, 3]]
+            faces += [[f[0], f[1], f[3]], [f[0], f[3], f[2]]]
+    m = trimesh.Trimesh(np.array(verts), np.array(faces), process=True)
+    m.fix_normals()
+    if m.volume < 0:
+        m.invert()
+    return m
+
+def _axis_frame(me, jn):
+    """(anchor, [axial_dir, u_dir, v_dir]) for joint jn in me's local frame."""
+    global _JWORLD
+    if _JWORLD is None:
+        from assembly import joints_world
+        _JWORLD = joints_world()
+    anchor_w, axis_w, _b = _JWORLD[jn]
+    Ti = np.linalg.inv(me.T)
+    anchor = (Ti @ np.append(anchor_w, 1))[:3]
+    d = (Ti[:3, :3] @ axis_w); d = d / np.linalg.norm(d)
+    # orthonormal frame: axial dir + two perpendiculars in the rotation plane
+    ref = np.array([1.0, 0, 0]) if abs(d[0]) < 0.9 else np.array([0.0, 1.0, 0])
+    u = np.cross(d, ref); u /= np.linalg.norm(u)
+    v = np.cross(d, u)
+    return anchor, [d, u, v]
+
+def clearance_local(items, shell_bounds, grow=1.0, step=15.0, clip_r=None):
+    """swept clearance keep-out: per joint, for every neighbour moving relative
+    to this part, its swept bounding SECTOR about the joint axis (radial band x
+    angular span x axial span, grown by `grow`). Sector prisms are watertight-safe
+    and look like designed clearance scoops. Shared STL local frame."""
+    cuts = []
+    env_lo = np.asarray(shell_bounds[0]) - 2.0
+    env_hi = np.asarray(shell_bounds[1]) + 2.0
+    MINE = set(BUILDERS)
+    leg_joints = [jn for jn, *_ in spec.JOINTS
+                  if jn.startswith(("left_", "right_"))]
+    for me in items:
+        for jn in leg_joints:
+            moving = _moving_bodies(jn)
+            me_moving = me.body in moving
+            lo_r, hi_r = spec.SWEEP_REQUIRED_DEG[jn]
+            lo = max(lo_r, JLIM[jn][0]); hi = min(hi_r, JLIM[jn][1], 150)
+            angs = sorted(set(np.r_[np.arange(lo, hi, step), hi, 0.0].round(2)))
+            anchor, (d, u, v) = _axis_frame(me, jn)
+            acc = {}
+            for a in angs:
+                D = _body_displacements({jn: a})
+                Rinv = np.linalg.inv(D.get(me.body, np.eye(4)))
+                for ki, k in enumerate(ITEMS0):
+                    if k.body == me.body:
+                        continue
+                    R = Rinv @ D.get(k.body, np.eye(4))
+                    if np.allclose(R, np.eye(4), atol=1e-6):
+                        continue              # moves together with me under jn
+                    if me_moving and k.mesh in MINE:
+                        continue              # handled on the static side
+                    if not me_moving and k.body not in moving:
+                        continue              # only the moving subtree scoops me
+                    w = NEW_WORLD.get(ki)
+                    if w is None:
+                        w = k.mesh_obj
+                    hv = w.vertices if len(w.vertices) < 30000 else w.vertices[::3]
+                    P = (R @ np.hstack([hv, np.ones((len(hv), 1))]).T).T[:, :3]
+                    P = _to_local_pts(me, P)
+                    bb = np.array([P.min(0), P.max(0)])
+                    if (bb[0] > env_hi).any() or (bb[1] < env_lo).any():
+                        continue
+                    Q = P - anchor
+                    za = Q @ d
+                    pu, pv = Q @ u, Q @ v
+                    rr = np.hypot(pu, pv)
+                    arc = _pose_arc(np.arctan2(pv, pu))
+                    acc.setdefault(ki, []).append(
+                        (float(rr.min()), float(rr.max()), arc,
+                         float(za.min()), float(za.max()), bb.copy()))
+            for ki, recs in acc.items():
+                r0 = max(min(r[0] for r in recs) - grow, 0.5)
+                r1 = max(r[1] for r in recs) + grow
+                au = _arc_union([r[2] for r in recs])
+                t0, t1 = (0.0, 2 * np.pi) if au is None else au
+                z0 = min(r[3] for r in recs) - grow
+                z1 = max(r[4] for r in recs) + grow
+                if r1 - r0 < 0.8 or z1 - z0 < 0.8:
+                    continue
+                pr = _sector_prism(anchor, [d, u, v], r0, r1, t0, t1, z0, z1)
+                # clip the sector to the union of the item's per-pose boxes:
+                # still a superset of its swept verts, but localised to where
+                # it actually swept - keeps the scoop tight around thin shells
+                bxs = union_all([trimesh.creation.box(
+                    extents=(r[5][1] - r[5][0]) + 2 * grow,
+                    transform=trimesh.transformations.translation_matrix(
+                        (r[5][0] + r[5][1]) / 2)) for r in recs])
+                if bxs is not None and bxs.is_volume:
+                    pr = trimesh.boolean.intersection([pr, bxs], engine=MAN)
+                if pr is not None and pr.is_volume and pr.volume > 1.0:
+                    cuts.append(pr)
+    if not cuts:
+        return None
+    return union_all(cuts)
 
 # ---------------------------------------------------------------- finish
 def meshfix(m):
@@ -406,25 +635,62 @@ def finish(name, local_geom, note=""):
     bodies = local_geom.split(only_watertight=False)
     # a legit hollow part has multiple components (outer shell + inner cavity skins);
     # drop only sub-mm3 slivers, then concatenate the rest WITHOUT boolean union.
-    big = [b for b in bodies if abs(b.volume) >= 1.0]
+    big = [b for b in bodies
+           if abs(b.volume) >= 3.0 and b.extents.min() > 0.15]
     if len(big) < len(bodies):
         frag = sum(b.volume for b in bodies) - sum(b.volume for b in big)
         print(f"   {name}: dropped {len(bodies)-len(big)} slivers ({frag:.2f} mm3)")
     if not big:
         raise RuntimeError(f"{name}: only slivers")
     local_geom = trimesh.util.concatenate(big) if len(big) > 1 else big[0]
-    local_geom.merge_vertices()
+    if not local_geom.is_watertight:
+        local_geom.merge_vertices()
     if not local_geom.is_watertight:
         fixed = meshfix(local_geom)
         if fixed is not None:
             local_geom = fixed
+    # weld near-coincident vertex clusters unconditionally: manifold booleans +
+    # float32 STL export leave sub-micron duplicate vertices that reload as open
+    # edges. Only adopt the weld if it preserves watertightness.
+    m = local_geom
+    try:
+        from scipy.spatial import cKDTree
+        pairs = list(cKDTree(m.vertices).query_pairs(1e-3))
+    except Exception:
+        pairs = []
+    if pairs:
+        par = list(range(len(m.vertices)))
+        def find(a):
+            while par[a] != a:
+                par[a] = par[par[a]]; a = par[a]
+            return a
+        for a, b in pairs:
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                par[max(ra, rb)] = min(ra, rb)
+        remap = np.array([find(i) for i in range(len(m.vertices))])
+        roots, inv = np.unique(remap, return_inverse=True)
+        f = inv[m.faces]
+        keep = (f[:, 0] != f[:, 1]) & (f[:, 1] != f[:, 2]) & (f[:, 2] != f[:, 0])
+        welded = trimesh.Trimesh(vertices=m.vertices[roots], faces=f[keep],
+                                 process=False)
+        welded.merge_vertices()
+        if welded.is_watertight:
+            local_geom = welded
     src = WORK / f"{name}.stl"
     ATTIC.mkdir(exist_ok=True)
     dst = ATTIC / f"{name}.stl"
     if src.exists() and not dst.exists():
         src.rename(dst)
     local_geom.export(src)
-    m = trimesh.load(src, force="mesh")          # report what actually landed on disk
+    m = trimesh.load(src, force="mesh")          # what actually landed on disk
+    if not m.is_watertight:
+        # float32 export can collapse flush-contact surfaces into non-manifold
+        # shared walls; repair the file as-written and re-export
+        fixed = meshfix(m)
+        if fixed is not None and fixed.is_watertight:
+            fixed.export(src)
+            m = trimesh.load(src, force="mesh")
     print(f"   {name}: watertight={m.is_watertight} vol={m.volume/1000:.2f} cm3 "
           f"ext={m.extents.round(1).tolist()} {note}")
     return m
@@ -449,6 +715,10 @@ def keep_material(name, items, extra_keeps=None):
     if keep is not None and keep.volume < 20.0:
         print(f"   {name}: keep material negligible ({keep.volume:.3f} mm3) - dropped")
         return None
+    # nudge a hair so the keep's boundary faces cannot lie exactly flush with the
+    # rebuilt surfaces (flush contact -> float32 vertex collapse -> non-manifold)
+    if keep is not None:
+        keep.apply_translation([0.03, 0.021, 0.017])
     return keep
 
 # ---------------------------------------------------------------- part builders
@@ -545,13 +815,34 @@ def _shell_extrude(x0, cy, cz, wy, wz, rr, length, taper, wall=None, cap=2.0):
 
 def _thigh_shell_local():
     # yz section covers both servo envelopes (y -6.3..22.2, z -10.9..36.6) + 1.5 pad.
-    # end extends past the pocket (63.6) so the 2 mm cap survives as a closed end.
-    shell = _shell_extrude(26.2, 8.0, 12.9, 33.5, 52.5, 4.0, 42.6, taper=2.5, wall=2.0)
-    return shell
+    # -x end face lands on the original joint plane x30.6 (the inner void starts
+    # at x0+wall so the face is a closed wall); the horn bore is cut by pockets.
+    shell = _shell_extrude(30.6, 8.0, 12.9, 33.5, 52.5, 4.0, 31.3, taper=2.5, wall=2.0)
+    # pad about the knee axis covering the servo case tip that pokes ~1.5 mm past
+    # the face plane; telescopes inside the shin's knee collar (inner r26.6).
+    # thigh-local knee axis: (x any, y13.34, z25.78)
+    pad = union_all([
+        # telescopes inside the shin's knee collar (inner r26.6)
+        cyl_at(np.array([28.9, 15.84, 25.76]), [1, 0, 0], 26.4, 0.5),   # x28.65..29.15
+        # steps out past the collar's end face to close the slit mouth
+        cyl_at(np.array([30.1, 15.84, 25.76]), [1, 0, 0], 28.8, 1.1),   # x29.55..30.65
+    ])
+    # skirt wrapping the shin's knee collar from outside (collar outer r28.8) -
+    # concentric about the joint axis so the 1.2 mm gap is rotation-invariant;
+    # closes the inter-face slit where the case face showed through.
+    skirt = _annulus((0, 15.84, 25.76), 30.0, 31.5, 27.5, 31.5)
+    return union_all([shell, pad, skirt])
+
+def _knee_face_disc():
+    """disc on the knee axis covering the servo case's -x end face; it pokes
+    through the shin wall's clearance slot so the case stays hidden. thigh-local
+    axis (y15.84 z25.76); case -x face at x34.4."""
+    return cyl_at(np.array([33.6, 15.84, 25.76]), [1, 0, 0], 23.8, 2.6)  # x32.3..34.9
 
 @builder("upper_leg_left")
 def build_upper_leg_left(items):
-    return union_all([_thigh_shell_local(), keep_material("upper_leg_left", items)])
+    return union_all([_thigh_shell_local(), _knee_face_disc(),
+                      keep_material("upper_leg_left", items)])
 
 @builder("upper_leg_right")
 def build_upper_leg_right(items):
@@ -559,22 +850,74 @@ def build_upper_leg_right(items):
     s.apply_transform(np.diag([-1.0, 1.0, 1.0, 1.0]))   # right part is local-x mirrored
     if s.volume < 0:
         s.invert()
-    return union_all([s, keep_material("upper_leg_right", items)])
+    d = _mirror_x(_knee_face_disc())
+    return union_all([s, d, keep_material("upper_leg_right", items)])
+
+def servo_env_world(jn, horn=False, grow=0.0):
+    s = next(i for i in ITEMS0 if i.mesh == f"scs0009:{jn}")
+    c = scs0009.envelope_mesh(grow=grow, horn=horn).copy()
+    c.apply_transform(s.T)
+    return s, c
 
 # ============================ shin: leg / leg_2 ============================
-# leg local frame: knee horn face at (27.7,15.8,25.8) facing -x; ankle servo bay
-# x12..47 y5..38 z-11..2 along the bottom; ankle horn exits +x at (46.4,15.8,-4.5).
+# leg local frame: knee horn face at (27.7,15.8,25.8) facing -x; knee servo case
+# x34..60 y-6..26 z20..32 protrudes medially into the shin top region; ankle servo
+# bay along the bottom; ankle horn exits +x at (46.4,15.8,-4.5).
+def _annulus(ax, r_in, r_out, x0, x1):
+    """cylindrical shell about the +x axis through ax (y,z), x in [x0,x1]."""
+    p = np.array([(x0 + x1) / 2, ax[1], ax[2]])
+    outer = cyl_at(p, [1, 0, 0], r_out, x1 - x0)
+    inner = cyl_at(p, [1, 0, 0], r_in, x1 - x0 + 4.0)
+    return trimesh.boolean.difference([outer, inner], engine=MAN)
+
 def _shin_local():
-    # ankle servo bay: closed box section, servo slides in -x, horn exits +x
-    bay = _shell_extrude(10.5, 21.0, -4.0, 39.0, 17.0, 3.0, 39.0, taper=0, wall=2.0, cap=2.0)
-    # strut from bay top up to the knee face plate
-    strut = local_box(24.0, 33.0, 11.5, 21.5, -3.0, 22.0, r=2.0)
-    # knee face wall (plate facing -x, carries the horn face + boss)
-    wall = local_box(24.5, 30.5, 7.5, 28.5, 14.0, 36.0, r=2.0)
-    g = union_all([bay, strut, wall])
-    # bore through the +x cap where the ankle horn/shaft exits to ankle_left
-    bore = cyl_at(np.array([46.4, 15.8, -4.5]) + np.array([2.0, 0, 0]), [1, 0, 0], 9.75, 10.0)
+    # ankle servo bay: closed box section, servo slides in -x, horn exits +x.
+    # ends at the case tip (x41.5); the +x region is rounded to a cylinder about
+    # the ankle axis so the ankle collar telescopes over it. The case is 18 tall
+    # (z-13.5..4.5) so the bay is deep enough to close over its bottom face.
+    bay = _shell_extrude(10.5, 15.0, -4.5, 52.0, 24.0, 3.0, 31.0, taper=0, wall=2.0, cap=2.0)
+    # round the bay's +x end region to a cylinder about the ankle axis
+    bay_end = trimesh.boolean.intersection(
+        [bay, cyl_at(np.array([36.0, 15.84, -4.48]), [1, 0, 0], 25.5, 20.0),
+         slab("x", 30.0, 60.0)], engine=MAN)
+    bay_mid = trimesh.boolean.intersection([bay, slab("x", -200, 32.0)], engine=MAN)
+    bay = union_all([bay_mid, bay_end])
+    # lip: cylindrical rim protruding past the bay's +x cap face, covering the
+    # case tip's outer annulus (tip r<=19.3) in the horn gap x41.5..44.4.
+    # Lower arc clipped at z>=-12 so its stubs stop inside the shoe mouth -
+    # deeper would exit the shoe floor (foot interior bottom ~-21) and strike
+    # the ground; the shoe walls hide the tip's silhouette below the deck.
+    lip = _annulus((0, 15.84, -4.48), 19.6, 27.0, 40.0, 44.4)
+    lip = trimesh.boolean.intersection([lip, slab("z", -12.0, 1e4)], engine=MAN)
+    bay = union_all([bay, lip])
+    # mid shank: hollow box-section column (2 mm walls) rising from the bay to the
+    # knee. Wide in the axis direction below, narrowed to the horn plate face
+    # (x27.6) at the top so it never reaches the thigh face (x30.6).
+    lower = rounded_box(18.0, 38.0, 6.0, 28.0, -2.0, 12.0, r=2.0)
+    upper = rounded_box(18.0, 27.6, 6.0, 28.0, 8.0, 36.0, r=2.0)
+    tube_out = union_all([lower, upper])
+    inner_l = local_box(20.0, 36.0, 8.0, 26.0, -4.0, 10.0)
+    inner_u = local_box(20.0, 25.6, 8.0, 26.0, 6.0, 33.0)
+    tube_in = union_all([inner_l, inner_u])
+    tube = trimesh.boolean.difference([tube_out, tube_in], engine=MAN)
+    # knee collar: a short cylindrical ring about the knee axis (y15.86 z28.26)
+    # bridging the horn gap between the leg's horn plate face (x~27.6) and the
+    # thigh face (x30.6); the thigh's pad telescopes inside it. The end zone
+    # steps out to r30.4 so it overlaps the thigh skirt's r30 bore and the
+    # radial slit channel stays closed for every oblique sightline.
+    collar = _annulus((0, 15.84, 25.76), 26.6, 28.8, 25.0, 29.4)
+    # backing plate closing the collar's inner void from the inboard side (the
+    # horn passes through the r<11 bore; keep wafer covers that region)
+    backing = _annulus((0, 15.84, 25.76), 11.0, 26.6, 26.9, 27.7)
+    g = union_all([bay, tube, collar, backing])
+    # ankle horn bore through the +x bay cap (face at x41.5)
+    bore = cyl_at(np.array([41.5, 15.84, -4.48]), [1, 0, 0], 9.75, 8.0)
     g = trimesh.boolean.difference([g, bore], engine=MAN)
+    # shallow panel groove ring around the shank (0.4 wide x 0.3 deep)
+    g_out = local_box(21.8, 46.2, 7.8, 26.2, 11.9, 12.3)
+    g_in = local_box(22.1, 45.9, 8.1, 25.9, 11.0, 13.2)
+    groove = trimesh.boolean.difference([g_out, g_in], engine=MAN)
+    g = trimesh.boolean.difference([g, groove], engine=MAN)
     return g
 
 @builder("leg")
@@ -605,16 +948,26 @@ def build_hip_l(items):
 # ============================ ankle + foot ============================
 # ankle_left local: ankle horn face at (46.6,15.8,-4.5) axis +x; bearing seat beside
 # it (seeed at ~x24-30); foot plate + sole attach below (z<-9). Bracket + foot shoe.
-def _ankle_local():
-    horn_wall = local_box(43.5, 48.5, 6.0, 26.0, -14.0, 6.0, r=1.5)
-    bracket = local_box(24.0, 46.0, 11.0, 22.0, -13.0, 2.0, r=1.5)
-    brace = local_box(24.0, 44.0, 13.0, 19.0, -18.0, -8.0, r=1.5)
-    g = union_all([horn_wall, bracket, brace])
+def _ankle_local(item=None, joint="left_ankle"):
+    # ankle tower: a drum about the ankle axis (y15.86 z-1.98) covering the horn
+    # + gap between the leg bay's capped face (x41.5) and this part's horn plate.
+    # Top arc only - the lower ends dip into the foot's deck recess.
+    tower = trimesh.boolean.difference(
+        [_annulus((0, 15.84, -4.48), 14.0, 17.0, 41.8, 45.8),
+         slab("z", -200.0, -11.5)], engine=MAN)
+    # horn plate: round end plate closing the tower's +x end, carries the horn
+    # face keep; lower arc dips into the foot's deck recess below the shoe top.
+    plate = trimesh.boolean.difference(
+        [cyl_at(np.array([46.5, 15.84, -4.48]), [1, 0, 0], 21.0, 4.0),
+         slab("z", -200.0, -11.5)], engine=MAN)
+    # strut descending through the deck slot into the foot
+    bracket = local_box(38.0, 46.0, 10.0, 23.0, -14.0, -6.0, r=1.5)
+    g = union_all([tower, plate, bracket])
     return g
 
 @builder("ankle_left")
 def build_ankle_left(items):
-    gs = [_ankle_local(), keep_material("ankle_left", items)]
+    gs = [_ankle_local(items[0]), keep_material("ankle_left", items)]
     bosses = [b for it in items for b in horn_bosses_local(it)]
     gs.append(union_all(bosses))
     return union_all(gs)
@@ -628,24 +981,54 @@ def _mirror_x(m):
 
 @builder("ankle_right")
 def build_ankle_right(items):
-    gs = [_mirror_x(_ankle_local()), keep_material("ankle_right", items)]
+    gs = [_mirror_x(_ankle_local(items[0], "right_ankle")),
+          keep_material("ankle_right", items)]
     bosses = [b for it in items for b in horn_bosses_local(it)]
     gs.append(union_all(bosses))
     return union_all(gs)
 
-# foot: flat shoe plate z -21..-9, sole pad under it. Same local frame as ankle_left.
-def _foot_local():
+# foot: closed shoe shell z -21..-9 (tray + top cover as one closed part), sole
+# pad under it. Same local frame as ankle_left. Top wall opened where the ankle
+# boot drum descends through it.
+def _foot_local(item, joint="left_ankle"):
     shoe = _shell_extrude(20.0, 11.0, -16.5, 41.0, 13.0, 5.0, 30.0, taper=0,
                           wall=1.8, cap=1.8)
+    # deck recess: the seat the joint nests into - covers the leg bay's bottom
+    # wall, the ankle bracket, and the drum/plate arcs that dip below the shoe
+    # top. Every descending part is joint material, so the recess shows gray.
+    seat = local_box(15.5, 48.0, -9.0, 39.5, -17.0, -8.6)
+    # swept keep-out: the leg's joint-region geometry (bay end + lip stubs)
+    # clears the rotating shoe through the ankle's full +/-45 deg - carve the
+    # swept volume so the recess is an exact-fit socket, not a guessed box.
+    leg_body = "leg" if joint == "left_ankle" else "leg_2"
+    li = next(i for i in instances("leg") if i.body == leg_body)
+    lw = NEW_WORLD.get(IDX.get(id(li)))
+    print(f"   {joint}: leg_region lw={'None' if lw is None else 'ok'}")
+    if lw is not None:
+        ball = trimesh.creation.icosphere(subdivisions=2, radius=34.0)
+        ball.apply_translation(JPOS[joint])
+        reg = trimesh.boolean.intersection([lw, ball], engine=MAN)
+        print(f"      reg vol={'None' if reg is None else round(reg.volume,1)}")
+        if reg is not None and reg.volume > 0:
+            swept = sweep_item_local(item, reg, li.body, joint, -45, 45, step=15.0)
+            print(f"      swept vol={'None' if swept is None else round(swept.volume,1)}")
+            if swept is not None:
+                # right-side sweep lands in ankle_right-local (x<0); the shoe is
+                # authored in the left frame and mirrored later - mirror back.
+                if joint == "right_ankle":
+                    swept = _mirror_x(swept)
+                seat = union_all([seat, grow_mesh(swept, 0.6)])
+    shoe = trimesh.boolean.difference([shoe, seat], engine=MAN)
     return shoe
 
 @builder("foot_left")
 def build_foot_left(items):
-    return union_all([_foot_local(), keep_material("foot_left", items)])
+    return union_all([_foot_local(items[0]), keep_material("foot_left", items)])
 
 @builder("foot_right")
 def build_foot_right(items):
-    return union_all([_mirror_x(_foot_local()), keep_material("foot_right", items)])
+    return union_all([_mirror_x(_foot_local(items[0], "right_ankle")),
+                      keep_material("foot_right", items)])
 
 @builder("sole_left")
 def build_sole_left(items):
@@ -657,12 +1040,108 @@ def build_sole_right(items):
     pad = local_box(21.0, 50.5, -8.0, 29.5, -22.5, -19.0, r=3.0)
     return union_all([_mirror_x(pad), keep_material("sole_right", items)])
 
+# moving-side subtrees for the leg joints (bodies that swing through the joint)
+JOINT_SUB = {"left_knee": ["leg", "ankle_left"], "left_ankle": ["ankle_left"],
+             "right_knee": ["leg_2", "ankle_right"], "right_ankle": ["ankle_right"]}
+
+def mutual_sweep_voids(name, items, clip_r=34.0):
+    """swept clearance voids for the OTHER side of each adjacent joint: the
+    neighbour's joint-region geometry (clipped to a ball around the axis) swept
+    through the joint range +0.6 mm, in this part's local frame."""
+    out = []
+    for it in items:
+        for jn, sub in JOINT_SUB.items():
+            if it.body == JBODY[jn]:
+                src_bodies = sub                    # carve the moving subtree
+            elif it.body in sub:
+                src_bodies = [JBODY[jn]]            # carve the parent side
+            else:
+                continue
+            anchor = JPOS[jn]
+            srcs = []
+            for si in [i for i in ITEMS0 if i.body in src_bodies]:
+                m = NEW_WORLD.get(IDX.get(id(si)))
+                if m is None:
+                    p = WORK / f"{si.mesh}.stl"
+                    if not p.exists():
+                        continue
+                    m = trimesh.load(p, force="mesh")
+                    m.apply_transform(si.T)
+                srcs.append(m)
+            if not srcs:
+                continue
+            src = trimesh.util.concatenate(srcs)
+            clip = trimesh.creation.icosphere(subdivisions=3, radius=clip_r)
+            clip.apply_translation(anchor)
+            try:
+                src = trimesh.boolean.intersection([src, clip], engine=MAN)
+            except Exception:
+                pass
+            v = sweep_item_local(it, src, src_bodies[0], jn, -45, 45, step=15.0)
+            if v is not None:
+                out.append(v)
+    if not out:
+        return []
+    v = union_all(out)
+    v = grow_mesh(v, 0.6)
+    zones = [z for it in items
+             for z in horn_keeps_local(it) + bearing_keeps_local(it) +
+                      horn_bosses_local(it)]
+    if zones:
+        z = union_all(zones)
+        try:
+            v2 = trimesh.boolean.difference([v, z], engine=MAN)
+            if v2 is not None:
+                v = v2
+        except Exception:
+            pass
+    return [v]
+
+def sweep_voids_local(name, items):
+    """swept servo-case voids (grow 1.0 mm incl horn) for joints whose servo sits
+    inside this part's moving envelope: knee case inside the shin's cup, ankle
+    case inside the ankle boot / foot / sole."""
+    out = []
+    for it in items:
+        jn = None
+        if name == "leg":
+            jn = "left_knee" if it.body == "leg" else "right_knee"
+        elif name in ("ankle_left", "foot_left", "sole_left"):
+            jn = "left_ankle"
+        elif name in ("ankle_right", "foot_right", "sole_right"):
+            jn = "right_ankle"
+        if jn is None:
+            continue
+        s, case = servo_env_world(jn, horn=True, grow=1.0)
+        v = sweep_item_local(it, case, s.body, jn, -45, 45, step=15.0)
+        if v is not None:
+            out.append(v)
+    if not out:
+        return []
+    v = union_all(out)
+    # never carve inside the interface keep-zones
+    zones = [z for it in items
+             for z in horn_keeps_local(it) + bearing_keeps_local(it) +
+                      horn_bosses_local(it)]
+    if zones:
+        z = union_all(zones)
+        try:
+            v2 = trimesh.boolean.difference([v, z], engine=MAN)
+            if v2 is not None:
+                v = v2
+        except Exception:
+            pass
+    return [v]
+
 # ============================ main ============================
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--parts", default="")
     ap.add_argument("--dry", action="store_true", help="build but do not write STLs")
-    ap.add_argument("--no-corr", action="store_true", help="skip swept-corridor cuts (faster, for look tests)")
+    ap.add_argument("--corr", action="store_true",
+                    help="EXPERIMENTAL: apply swept sector-prism clearance keep-outs "
+                         "(overcuts 2mm shells; off by default - clean shells ship as-is)")
+    ap.add_argument("--clear", type=float, default=1.0, help="clearance keep-out growth (mm)")
     a = ap.parse_args()
     todo = a.parts.split(",") if a.parts else list(BUILDERS)
     # pass A: pre-cut geometry for every requested STL (registers NEW_WORLD per
@@ -686,16 +1165,21 @@ def main():
         wb = [np.minimum.reduce([b[0] for b in wb]), np.maximum.reduce([b[1] for b in wb])]
         print(f"[{name}] bodies={[it.body for it in items]}")
         cuts = pockets_local(items) + horn_disc_local(items) + \
-            neighbor_servo_cuts(items, wb)
-        if not a.no_corr:
-            cor = corridors_local(items, wb)
-            if cor is not None:
-                # the corridor must not eat the functional keep-zones (horn faces,
+            neighbor_servo_cuts(items, wb) + sweep_voids_local(name, items)
+        if a.corr:
+            cor = clearance_local(items, g.bounds, grow=a.clear)
+            if cor is not None and cor.is_volume:
+                # the keep-out must not eat the functional keep-zones (horn faces,
                 # bearing seats) - clip it away from them before cutting
                 keepz = union_all([z for it in items
                                    for z in horn_keeps_local(it) + bearing_keeps_local(it)])
-                if keepz is not None:
-                    cor = trimesh.boolean.difference([cor, keepz], engine=MAN)
+                if keepz is not None and keepz.is_volume:
+                    try:
+                        cor2 = trimesh.boolean.difference([cor, keepz], engine=MAN)
+                        if cor2 is not None and cor2.is_volume:
+                            cor = cor2
+                    except Exception:
+                        pass
                 cuts.append(cor)
         g = subtract_all(g, cuts)
         if a.dry:
